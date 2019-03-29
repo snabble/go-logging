@@ -198,7 +198,7 @@ func LifecycleStart(appName string, args interface{}) {
 	Logger.WithFields(fields).Infof("starting application: %v", appName)
 }
 
-// LifecycleStop logs the stop of an application
+// LifecycleStop logs the request to stop an application
 func LifecycleStop(appName string, signal os.Signal, err error) {
 	fields := logrus.Fields{
 		"type":  "lifecycle",
@@ -218,6 +218,26 @@ func LifecycleStop(appName string, signal os.Signal, err error) {
 			Errorf("stopping application: %v (%v)", appName, err)
 	} else {
 		Logger.WithFields(fields).Infof("stopping application: %v (%v)", appName, signal)
+	}
+}
+
+// LifecycleStoped logs the stop of an application
+func LifecycleStoped(appName string, err error) {
+	fields := logrus.Fields{
+		"type":  "lifecycle",
+		"event": "stoped",
+	}
+
+	if os.Getenv("BUILD_NUMBER") != "" {
+		fields["build_number"] = os.Getenv("BUILD_NUMBER")
+	}
+
+	if err != nil {
+		Logger.WithFields(fields).
+			WithError(err).
+			Errorf("stopping application: %v (%v)", appName, err)
+	} else {
+		Logger.WithFields(fields).Infof("application stoped: %v", appName)
 	}
 }
 
