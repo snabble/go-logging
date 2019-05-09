@@ -1,0 +1,11 @@
+github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
+github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
+github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
+github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
+github.com/stretchr/testify v1.3.0 h1:TivCn/peBQ7UY8ooIcPgZFpTNSz0Q2U6UrFlUfqbe0Q=
+github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
+github.com/tarent/lib-compose v0.0.0-20170829113806-69430f91d1d6 h1:EdRyqD9aAKam90IDujb6wtPsOV4JG79ZxkZE01DUA3M=
+github.com/tarent/lib-compose v0.0.0-20170829113806-69430f91d1d6/go.mod h1:mqxWNjaOgpyafkwOVyRkP/PIL+RN8phVEf4sjP8yW6c=
+github.com/tarent/logrus v0.11.5 h1:6Ecuym2kpXpZURcyYKm7K5IQ1AZGK2hye7auueNyEtE=
+github.com/tarent/logrus v0.11.5/go.mod h1:ql8ihK/sxurTyP1LVhkGrMHhl0aXd/+hu4MBiAJDFN4=

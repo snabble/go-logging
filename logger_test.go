@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/stretchr/testify/assert"
-	"github.com/tarent/logrus"
 	"net/http"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/tarent/logrus"
 )
 
 type logReccord struct {
@@ -151,7 +152,7 @@ func Test_Logger_Access(t *testing.T) {
 	a.Equal("www.example.org", data.Host)
 	a.Equal("GET", data.Method)
 	a.Equal("HTTP/1.1", data.Proto)
-	a.Equal("201 ->GET /foo?...", data.Message)
+	a.Equal("201 ->GET /foo?q=bar", data.Message)
 	a.Equal("127.0.0.1", data.RemoteIp)
 	a.Equal(201, data.ResponseStatus)
 	a.Equal("access", data.Type)
