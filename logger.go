@@ -3,11 +3,12 @@ package logging
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/tarent/logrus"
 	"net/http"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/tarent/logrus"
 )
 
 var Logger *logrus.Logger
@@ -47,7 +48,7 @@ func Access(r *http.Request, start time.Time, statusCode int) {
 	if len(r.URL.RawQuery) == 0 {
 		msg = fmt.Sprintf("%v ->%v %v", statusCode, r.Method, r.URL.Path)
 	} else {
-		msg = fmt.Sprintf("%v ->%v %v?...", statusCode, r.Method, r.URL.Path)
+		msg = fmt.Sprintf("%v ->%v %v?%s", statusCode, r.Method, r.URL.Path, r.URL.RawQuery)
 	}
 
 	if statusCode >= 200 && statusCode <= 399 {
