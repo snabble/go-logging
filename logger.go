@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tarent/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 var Logger *logrus.Logger

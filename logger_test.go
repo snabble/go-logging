@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/tarent/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 type logReccord struct {
