@@ -1,0 +1,15 @@
+language: go
+go:
+- 1.14.x
+script:
+- go vet github.com/snabble/go-logging/...
+- go test --cover github.com/snabble/go-logging/...
+notifications:
+  email: false
+  slack:
+    on_success: :change
+    on_failure: :always
+    secure: LNfAWkWtOCKxkcaZEoh2k3zBHpZaI0Ty+VKumDuzpU2m3NYH7AxDgrFAJLZOGdAyBvMtV2K8STSVQWTLA3lNmU5m7WVFKm17J58jle3tsk2gvYIMsGOsKFy+MSmjMm4HH1NSdkFwYrAQeSvZjEywQ5qv/geJwDvIEsuppA5JCCZ6xG1GgjcptUoiSVQn7sNgz5IHCI99RjUjeRvvPlTRqFTBd4JcQvZ46jkKGccQ10+KsH1AfQ/Ay8Ns0LJKEhsmivOgakdjpSgMjnsiWhAstLoKMI/W7kCd7fP/ff8btI+zhMby75kVdgsUTnbN15Dkr8Najf6LPQ47MfFYunKTDEZhZSdXt5C0N9DwD8BpOlnzeYlmyQ3gphoF5R2a279QNIMAaOO6DUAJpcFGvsiRkjz7VRlBzZFXHNr4Sk1D+JHzISHEM1llW/m01jeEtA6TFx0raaX95To0ygl4if+WmjmfJFDrlVJUhAVxRG7ERGG1KvBzrM43Gv4L3QQr8i5Anlntbba4DfSvP5KWQAdX3JWo7feQEktH/waZ4OzKbPqGQZ5jxBhG35Sz/2o/6nUebUlaDJjMahUrddpPGcp1xlKhF5QMTK/o9kYOEy+AmYsTthAMziq41BGwTqqgqUwaLDdUOrmC3cEZWOt5spwJjzOu7FQqlu9qXXjayzsPEbg=
+env:
+  global:
+  - GOPRIVATE="github.com/snabble/*"
