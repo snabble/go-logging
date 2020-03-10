@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
 )
 
 type logReccord struct {
@@ -38,13 +38,13 @@ func Test_Logger_Set(t *testing.T) {
 	// given: an error logger in text format
 	Set("error", true)
 	defer Set("info", false)
-	Logger.Formatter.(*logrus.TextFormatter).DisableColors = true
+	Log.Formatter.(*logrus.TextFormatter).DisableColors = true
 	b := bytes.NewBuffer(nil)
-	Logger.Out = b
+	Log.Out = b
 
 	// when: I log something
-	Logger.Info("should be ignored ..")
-	Logger.WithField("foo", "bar").Error("oops")
+	Log.Info("should be ignored ..")
+	Log.WithField("foo", "bar").Error("oops")
 
 	// then: only the error text is contained
 	// and it is text formated
@@ -56,7 +56,7 @@ func Test_Logger_Call(t *testing.T) {
 
 	// given a logger
 	b := bytes.NewBuffer(nil)
-	Logger.Out = b
+	Log.Out = b
 	AccessLogCookiesBlacklist = []string{"ignore", "user_id"}
 	UserCorrelationCookie = "user_id"
 
@@ -120,7 +120,7 @@ func Test_Logger_Access(t *testing.T) {
 
 	// given a logger
 	b := bytes.NewBuffer(nil)
-	Logger.Out = b
+	Log.Out = b
 	AccessLogCookiesBlacklist = []string{"ignore", "user_id"}
 	UserCorrelationCookie = "user_id"
 
@@ -166,7 +166,7 @@ func Test_Logger_Access_ErrorCases(t *testing.T) {
 
 	// given a logger
 	b := bytes.NewBuffer(nil)
-	Logger.Out = b
+	Log.Out = b
 
 	// and a request
 	r, _ := http.NewRequest("GET", "http://www.example.org/foo", nil)
@@ -218,7 +218,7 @@ func Test_Logger_LifecycleStart(t *testing.T) {
 
 	// given a logger
 	b := bytes.NewBuffer(nil)
-	Logger.Out = b
+	Log.Out = b
 
 	// and
 	someArguments := struct {
@@ -250,7 +250,7 @@ func Test_Logger_LifecycleStop_ByInterrupt(t *testing.T) {
 
 	// given a logger
 	b := bytes.NewBuffer(nil)
-	Logger.Out = b
+	Log.Out = b
 
 	// and an Environment Variable with the Build Number is set
 	os.Setenv("BUILD_NUMBER", "b666")
@@ -273,7 +273,7 @@ func Test_Logger_LifecycleStop_ByError(t *testing.T) {
 
 	// given a logger
 	b := bytes.NewBuffer(nil)
-	Logger.Out = b
+	Log.Out = b
 
 	// and an Environment Variable with the Build Number is set
 	os.Setenv("BUILD_NUMBER", "b666")
@@ -296,7 +296,7 @@ func Test_Logger_ServerClosed(t *testing.T) {
 
 	// given a logger
 	b := bytes.NewBuffer(nil)
-	Logger.Out = b
+	Log.Out = b
 
 	// and an Environment Variable with the Build Number is set
 	os.Setenv("BUILD_NUMBER", "b666")
@@ -320,7 +320,7 @@ func Test_Logger_Cacheinfo(t *testing.T) {
 	Set("debug", false)
 	defer Set("info", false)
 	b := bytes.NewBuffer(nil)
-	Logger.Out = b
+	Log.Out = b
 
 	// when a positive cachinfo is logged
 	Cacheinfo("/foo", true)

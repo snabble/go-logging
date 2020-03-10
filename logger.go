@@ -1,288 +1,88 @@
 package logging
 
 import (
-	"encoding/json"
-	"fmt"
-	"net/http"
-	"os"
-	"strings"
+	"context"
 	"time"
 
 	"github.com/sirupsen/logrus"
 )
 
-var Logger *logrus.Logger
+const (
+	ScopeField    = "scope"
+	ProjectField  = "project"
+	CheckoutField = "checkout"
+)
 
-// The of cookies which should not be logged
-var AccessLogCookiesBlacklist = []string{}
+var Log *Logger
 
-var LifecycleEnvVars = []string{"BUILD_NUMBER", "BUILD_HASH", "BUILD_DATE"}
-
-func init() {
-	Set("info", false)
+type Logger struct {
+	*logrus.Logger
 }
 
-// Set creates a new Logger with the matching specification
-func Set(level string, textLogging bool) error {
-	l, err := logrus.ParseLevel(level)
-	if err != nil {
-		return err
-	}
-
-	logger := logrus.New()
-	if textLogging {
-		logger.Formatter = &logrus.TextFormatter{DisableColors: true}
-	} else {
-		logger.Formatter = &LogstashFormatter{TimestampFormat: time.RFC3339Nano}
-	}
-	logger.Level = l
-	Logger = logger
-	return nil
+func (logger *Logger) WithError(err error) *Entry {
+	return NewEntry(logger).WithError(err)
 }
 
-// Access logs an access entry with call duration and status code
-func Access(r *http.Request, start time.Time, statusCode int) {
-	e := access(r, start, statusCode, nil)
-
-	var msg string
-	if len(r.URL.RawQuery) == 0 {
-		msg = fmt.Sprintf("%v ->%v %v", statusCode, r.Method, r.URL.Path)
-	} else {
-		msg = fmt.Sprintf("%v ->%v %v?%s", statusCode, r.Method, r.URL.Path, r.URL.RawQuery)
-	}
-
-	if statusCode >= 200 && statusCode <= 399 {
-		e.Info(msg)
-	} else if statusCode >= 400 && statusCode <= 499 {
-		e.Warn(msg)
-	} else {
-		e.Error(msg)
-	}
+func (logger *Logger) WithContext(ctx context.Context) *Entry {
+	return NewEntry(logger).WithContext(ctx)
 }
 
-// AccessError logs an error while accessing
-func AccessError(r *http.Request, start time.Time, err error) {
-	e := access(r, start, 0, err)
-	e.Errorf("ERROR ->%v %v", r.Method, r.URL.Path)
+func (logger *Logger) WithField(key string, value interface{}) *Entry {
+	return NewEntry(logger).WithField(key, value)
 }
 
-func access(r *http.Request, start time.Time, statusCode int, err error) *logrus.Entry {
-	url := r.URL.Path
-	if r.URL.RawQuery != "" {
-		url += "?" + r.URL.RawQuery
-	}
-	fields := logrus.Fields{
-		"type":       "access",
-		"@timestamp": start,
-		"remote_ip":  getRemoteIp(r),
-		"host":       r.Host,
-		"url":        url,
-		"method":     r.Method,
-		"proto":      r.Proto,
-		"duration":   time.Since(start).Nanoseconds() / 1000000,
-		"User_Agent": r.Header.Get("User-Agent"),
-	}
-
-	if statusCode != 0 {
-		fields["response_status"] = statusCode
-	}
-
-	if err != nil {
-		fields[logrus.ErrorKey] = err.Error()
-	}
-
-	setCorrelationIds(fields, r.Header)
-
-	cookies := map[string]string{}
-	for _, c := range r.Cookies() {
-		if !contains(AccessLogCookiesBlacklist, c.Name) {
-			cookies[c.Name] = c.Value
-		}
-	}
-	if len(cookies) > 0 {
-		fields["cookies"] = cookies
-	}
-
-	return Logger.WithFields(fields)
+func (logger *Logger) WithFields(fields logrus.Fields) *Entry {
+	return NewEntry(logger).WithFields(fields)
 }
 
-// Call logs the result of an outgoing call
-func Call(r *http.Request, resp *http.Response, start time.Time, err error) {
-	url := r.URL.Path
-	if r.URL.RawQuery != "" {
-		url += "?" + r.URL.RawQuery
-	}
-	fields := logrus.Fields{
-		"type":       "call",
-		"@timestamp": start,
-		"host":       r.Host,
-		"url":        url,
-		"full_url":   r.URL.String(),
-		"method":     r.Method,
-		"duration":   time.Since(start).Nanoseconds() / 1000000,
-	}
-
-	setCorrelationIds(fields, r.Header)
-
-	if err != nil {
-		fields[logrus.ErrorKey] = err.Error()
-		Logger.WithFields(fields).Error(err)
-		return
-	}
-
-	if resp != nil {
-		fields["response_status"] = resp.StatusCode
-		fields["content_type"] = resp.Header.Get("Content-Type")
-		e := Logger.WithFields(fields)
-		msg := fmt.Sprintf("%v %v-> %v", resp.StatusCode, r.Method, r.URL.String())
-
-		if resp.StatusCode >= 200 && resp.StatusCode <= 399 {
-			e.Info(msg)
-		} else if resp.StatusCode >= 400 && resp.StatusCode <= 499 {
-			e.Warn(msg)
-		} else {
-			e.Error(msg)
-		}
-		return
-	}
-
-	Logger.WithFields(fields).Warn("call, but no response given")
+func (logger *Logger) WithTime(t time.Time) *Entry {
+	return NewEntry(logger).WithTime(t)
 }
 
-// Cacheinfo logs the hit information a accessing a ressource
-func Cacheinfo(url string, hit bool) {
-	var msg string
-	if hit {
-		msg = fmt.Sprintf("cache hit: %v", url)
-	} else {
-		msg = fmt.Sprintf("cache miss: %v", url)
-	}
-	Logger.WithFields(
-		logrus.Fields{
-			"type": "cacheinfo",
-			"url":  url,
-			"hit":  hit,
-		}).
-		Debug(msg)
+func (logger *Logger) WithScope(scope string) *Entry {
+	return NewEntry(logger).WithScope(scope)
 }
 
-// Return a log entry for application logs,
-// prefilled with the correlation ids out of the supplied request.
-func Application(h http.Header) *logrus.Entry {
-	fields := logrus.Fields{
-		"type": "application",
-	}
-	setCorrelationIds(fields, h)
-	return Logger.WithFields(fields)
+type Entry struct {
+	*logrus.Entry
 }
 
-// LifecycleStart logs the start of an application
-// with the configuration struct or map as paramter.
-func LifecycleStart(appName string, args interface{}) {
-	fields := logrus.Fields{}
-
-	jsonString, err := json.Marshal(args)
-	if err == nil {
-		err := json.Unmarshal(jsonString, &fields)
-		if err != nil {
-			fields["parse_error"] = err.Error()
-		}
-	}
-	fields["type"] = "lifecycle"
-	fields["event"] = "start"
-	for _, env := range LifecycleEnvVars {
-		if os.Getenv(env) != "" {
-			fields[strings.ToLower(env)] = os.Getenv(env)
-		}
-	}
-
-	Logger.WithFields(fields).Infof("starting application: %v", appName)
+func NewEntry(logger *Logger) *Entry {
+	return wrapEntry(logrus.NewEntry(logger.Logger))
 }
 
-// LifecycleStop logs the request to stop an application
-func LifecycleStop(appName string, signal os.Signal, err error) {
-	fields := logrus.Fields{
-		"type":  "lifecycle",
-		"event": "stop",
-	}
-	if signal != nil {
-		fields["signal"] = signal.String()
-	}
-
-	if os.Getenv("BUILD_NUMBER") != "" {
-		fields["build_number"] = os.Getenv("BUILD_NUMBER")
-	}
-
-	if err != nil {
-		Logger.WithFields(fields).
-			WithError(err).
-			Errorf("stopping application: %v (%v)", appName, err)
-	} else {
-		Logger.WithFields(fields).Infof("stopping application: %v (%v)", appName, signal)
-	}
+func (entry *Entry) WithError(err error) *Entry {
+	return entry.WithField(logrus.ErrorKey, err)
 }
 
-// LifecycleStoped logs the stop of an application
-func LifecycleStoped(appName string, err error) {
-	fields := logrus.Fields{
-		"type":  "lifecycle",
-		"event": "stoped",
-	}
-
-	if os.Getenv("BUILD_NUMBER") != "" {
-		fields["build_number"] = os.Getenv("BUILD_NUMBER")
-	}
-
-	if err != nil {
-		Logger.WithFields(fields).
-			WithError(err).
-			Errorf("stopping application: %v (%v)", appName, err)
-	} else {
-		Logger.WithFields(fields).Infof("application stoped: %v", appName)
-	}
+func (entry *Entry) WithContext(ctx context.Context) *Entry {
+	return wrapEntry(entry.Entry.WithContext(ctx))
 }
 
-// LifecycleStop logs the stop of an application
-func ServerClosed(appName string) {
-	fields := logrus.Fields{
-		"type":  "application",
-		"event": "stop",
-	}
-
-	if os.Getenv("BUILD_NUMBER") != "" {
-		fields["build_number"] = os.Getenv("BUILD_NUMBER")
-	}
-
-	Logger.WithFields(fields).Infof("http server was closed: %v", appName)
+func (entry *Entry) WithField(key string, value interface{}) *Entry {
+	return entry.WithFields(logrus.Fields{key: value})
 }
 
-func getRemoteIp(r *http.Request) string {
-	if r.Header.Get("X-Cluster-Client-Ip") != "" {
-		return r.Header.Get("X-Cluster-Client-Ip")
-	}
-	if r.Header.Get("X-Real-Ip") != "" {
-		return r.Header.Get("X-Real-Ip")
-	}
-	return strings.Split(r.RemoteAddr, ":")[0]
+func (entry *Entry) WithFields(fields logrus.Fields) *Entry {
+	return wrapEntry(entry.Entry.WithFields(fields))
 }
 
-func setCorrelationIds(fields logrus.Fields, h http.Header) {
-	correlationId := GetCorrelationId(h)
-	if correlationId != "" {
-		fields["correlation_id"] = correlationId
-	}
-
-	userCorrelationId := GetUserCorrelationId(h)
-	if userCorrelationId != "" {
-		fields["user_correlation_id"] = userCorrelationId
-	}
+func (entry *Entry) WithTime(t time.Time) *Entry {
+	return wrapEntry(entry.Entry.WithTime(t))
 }
 
-func contains(s []string, e string) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
+func (entry *Entry) WithScope(scope string) *Entry {
+	return entry.WithField(ScopeField, scope)
+}
+
+func (entry *Entry) WithProject(project string) *Entry {
+	return entry.WithField(ProjectField, project)
+}
+
+func (entry *Entry) WithCheckout(checkout string) *Entry {
+	return entry.WithField(CheckoutField, checkout)
+}
+
+func wrapEntry(logrusEntry *logrus.Entry) *Entry {
+	return &Entry{Entry: logrusEntry}
 }
