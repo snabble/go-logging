@@ -27,7 +27,7 @@ func Test_LogMiddleware_Panic(t *testing.T) {
 	lm.ServeHTTP(httptest.NewRecorder(), r)
 
 	data := logRecordFromBuffer(b)
-	a.Contains(data.Error, "logging.Test_LogMiddleware_Panic.func1")
+	a.Contains(data.Error, "Test_LogMiddleware_Panic.func1")
 	a.Contains(data.Error, "runtime error: index out of range")
 	a.Contains(data.Message, "ERROR ->GET /foo")
 	a.Equal(data.Level, "error")
