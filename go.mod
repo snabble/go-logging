@@ -1,4 +1,4 @@
-module github.com/snabble/go-logging
+module github.com/snabble/go-logging/v2
 
 go 1.14
 
