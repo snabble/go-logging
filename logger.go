@@ -43,6 +43,14 @@ func (logger *Logger) WithScope(scope string) *Entry {
 	return NewEntry(logger).WithScope(scope)
 }
 
+func (logger *Logger) WithProject(project string) *Entry {
+	return NewEntry(logger).WithField(ProjectField, project)
+}
+
+func (logger *Logger) WithCheckout(checkout string) *Entry {
+	return NewEntry(logger).WithField(CheckoutField, checkout)
+}
+
 type Entry struct {
 	*logrus.Entry
 }
