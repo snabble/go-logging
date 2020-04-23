@@ -11,6 +11,7 @@ const (
 	ScopeField    = "scope"
 	ProjectField  = "project"
 	CheckoutField = "checkout"
+	DurationField = "duration"
 )
 
 var Log *Logger
@@ -37,6 +38,10 @@ func (logger *Logger) WithFields(fields logrus.Fields) *Entry {
 
 func (logger *Logger) WithTime(t time.Time) *Entry {
 	return NewEntry(logger).WithTime(t)
+}
+
+func (logger *Logger) WithDuration(d time.Duration) *Entry {
+	return NewEntry(logger).WithDuration(d)
 }
 
 func (logger *Logger) WithScope(scope string) *Entry {
@@ -77,6 +82,10 @@ func (entry *Entry) WithFields(fields logrus.Fields) *Entry {
 
 func (entry *Entry) WithTime(t time.Time) *Entry {
 	return wrapEntry(entry.Entry.WithTime(t))
+}
+
+func (entry *Entry) WithDuration(d time.Duration) *Entry {
+	return entry.WithField(DurationField, d.Nanoseconds()/1000000)
 }
 
 func (entry *Entry) WithScope(scope string) *Entry {
