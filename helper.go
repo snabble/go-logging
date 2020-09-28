@@ -3,6 +3,7 @@ package logging
 import (
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"strings"
@@ -261,7 +262,12 @@ func getRemoteIp(r *http.Request) string {
 	if r.Header.Get("X-Real-Ip") != "" {
 		return r.Header.Get("X-Real-Ip")
 	}
-	return strings.Split(r.RemoteAddr, ":")[0]
+
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		return r.RemoteAddr
+	}
+	return host
 }
 
 func setCorrelationIds(fields logrus.Fields, h http.Header) {
