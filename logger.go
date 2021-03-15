@@ -11,6 +11,7 @@ const (
 	ScopeField    = "scope"
 	ProjectField  = "project"
 	CheckoutField = "checkout"
+	OrderField    = "order"
 	DurationField = "duration"
 )
 
@@ -56,6 +57,10 @@ func (logger *Logger) WithCheckout(checkout string) *Entry {
 	return NewEntry(logger).WithField(CheckoutField, checkout)
 }
 
+func (logger *Logger) WithOrder(order string) *Entry {
+	return NewEntry(logger).WithField(OrderField, order)
+}
+
 type Entry struct {
 	*logrus.Entry
 }
@@ -98,6 +103,10 @@ func (entry *Entry) WithProject(project string) *Entry {
 
 func (entry *Entry) WithCheckout(checkout string) *Entry {
 	return entry.WithField(CheckoutField, checkout)
+}
+
+func (entry *Entry) WithOrder(order string) *Entry {
+	return entry.WithField(OrderField, order)
 }
 
 func wrapEntry(logrusEntry *logrus.Entry) *Entry {
