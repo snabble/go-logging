@@ -10,6 +10,7 @@ import (
 const (
 	ScopeField    = "scope"
 	ProjectField  = "project"
+	ShopField     = "shop"
 	CheckoutField = "checkout"
 	OrderField    = "order"
 	DurationField = "duration"
@@ -51,6 +52,10 @@ func (logger *Logger) WithScope(scope string) *Entry {
 
 func (logger *Logger) WithProject(project string) *Entry {
 	return NewEntry(logger).WithField(ProjectField, project)
+}
+
+func (logger *Logger) WithShop(shop string) *Entry {
+	return NewEntry(logger).WithField(ShopField, shop)
 }
 
 func (logger *Logger) WithCheckout(checkout string) *Entry {
@@ -99,6 +104,10 @@ func (entry *Entry) WithScope(scope string) *Entry {
 
 func (entry *Entry) WithProject(project string) *Entry {
 	return entry.WithField(ProjectField, project)
+}
+
+func (entry *Entry) WithShop(shop string) *Entry {
+	return entry.WithField(ShopField, shop)
 }
 
 func (entry *Entry) WithCheckout(checkout string) *Entry {
