@@ -107,6 +107,18 @@ func access(r *http.Request, start time.Time, statusCode int, err error) *Entry 
 
 // Call logs the result of an outgoing call
 func Call(r *http.Request, resp *http.Response, start time.Time, err error) {
+	fields := fieldsForCall(r, resp, start, err)
+	logCall(fields, r, resp, err)
+}
+
+// Call logs the result of an outgoing call and marks it as flaky
+func FlakyCall(r *http.Request, resp *http.Response, start time.Time, err error) {
+	fields := fieldsForCall(r, resp, start, err)
+	fields["flaky"] = true
+	logCall(fields, r, resp, err)
+}
+
+func fieldsForCall(r *http.Request, resp *http.Response, start time.Time, err error) logrus.Fields {
 	url := r.URL.Path
 	if r.URL.RawQuery != "" {
 		url += "?" + r.URL.RawQuery
@@ -125,13 +137,23 @@ func Call(r *http.Request, resp *http.Response, start time.Time, err error) {
 
 	if err != nil {
 		fields[logrus.ErrorKey] = err.Error()
-		Log.WithFields(fields).Error(err)
-		return
 	}
 
 	if resp != nil {
 		fields["response_status"] = resp.StatusCode
 		fields["content_type"] = resp.Header.Get("Content-Type")
+	}
+
+	return fields
+}
+
+func logCall(fields logrus.Fields, r *http.Request, resp *http.Response, err error) {
+	if err != nil {
+		Log.WithFields(fields).Error(err)
+		return
+	}
+
+	if resp != nil {
 		e := Log.WithFields(fields)
 		msg := fmt.Sprintf("%v %v-> %v", resp.StatusCode, r.Method, r.URL.String())
 
