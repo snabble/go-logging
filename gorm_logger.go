@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-
 	"gorm.io/gorm"
 	gormlogger "gorm.io/gorm/logger"
 	"gorm.io/gorm/utils"
@@ -39,7 +38,7 @@ func (l *gormLogger) Warn(ctx context.Context, s string, args ...interface{}) {
 }
 
 func (l *gormLogger) Error(ctx context.Context, s string, args ...interface{}) {
-	Log.WithContext(ctx).Errorf(s, args...)
+	Log.WithContext(ctx).Warnf(s, args...)
 }
 
 func (l *gormLogger) Trace(ctx context.Context, begin time.Time, fc func() (string, int64), err error) {
