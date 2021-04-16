@@ -42,6 +42,9 @@ func (l *gormLogger) Error(ctx context.Context, s string, args ...interface{}) {
 }
 
 func (l *gormLogger) Trace(ctx context.Context, begin time.Time, fc func() (string, int64), err error) {
+	if !Log.IsLevelEnabled(logrus.DebugLevel) {
+		return
+	}
 	elapsed := time.Since(begin)
 	sql, _ := fc()
 	fields := logrus.Fields{}
