@@ -12,7 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// The of cookies which should not be logged
+// AccessLogCookiesBlacklist The of cookies which should not be logged
 var AccessLogCookiesBlacklist = []string{}
 
 var LifecycleEnvVars = []string{"BUILD_NUMBER", "BUILD_HASH", "BUILD_DATE"}
@@ -111,7 +111,7 @@ func Call(r *http.Request, resp *http.Response, start time.Time, err error) {
 	logCall(fields, r, resp, err)
 }
 
-// Call logs the result of an outgoing call and marks it as flaky
+// FlakyCall logs the result of an outgoing call and marks it as flaky
 func FlakyCall(r *http.Request, resp *http.Response, start time.Time, err error) {
 	fields := fieldsForCall(r, resp, start, err)
 	fields["flaky"] = true
@@ -170,7 +170,7 @@ func logCall(fields logrus.Fields, r *http.Request, resp *http.Response, err err
 	Log.WithFields(fields).Warn("call, but no response given")
 }
 
-// Cacheinfo logs the hit information a accessing a ressource
+// Cacheinfo logs the hit information a accessing a resource
 func Cacheinfo(url string, hit bool) {
 	var msg string
 	if hit {
@@ -187,7 +187,7 @@ func Cacheinfo(url string, hit bool) {
 		Debug(msg)
 }
 
-// Return a log entry for application logs,
+// Application Return a log entry for application logs,
 // prefilled with the correlation ids out of the supplied request.
 func Application(h http.Header) *Entry {
 	fields := logrus.Fields{
@@ -198,7 +198,7 @@ func Application(h http.Header) *Entry {
 }
 
 // LifecycleStart logs the start of an application
-// with the configuration struct or map as paramter.
+// with the configuration struct or map as parameter.
 func LifecycleStart(appName string, args interface{}) {
 	fields := logrus.Fields{}
 
@@ -244,10 +244,20 @@ func LifecycleStop(appName string, signal os.Signal, err error) {
 }
 
 // LifecycleStoped logs the stop of an application
+// Deprecated: Typo in name LifecycleStoped, please use LifecycleStopped instead.
 func LifecycleStoped(appName string, err error) {
+	logApplicationLifecycleEvent(appName, "stoped", err)
+}
+
+// LifecycleStopped logs the stop of an application
+func LifecycleStopped(appName string, err error) {
+	logApplicationLifecycleEvent(appName, "stopped", err)
+}
+
+func logApplicationLifecycleEvent(appName string, eventName string, err error) {
 	fields := logrus.Fields{
 		"type":  "lifecycle",
-		"event": "stoped",
+		"event": eventName,
 	}
 
 	if os.Getenv("BUILD_NUMBER") != "" {
@@ -259,11 +269,11 @@ func LifecycleStoped(appName string, err error) {
 			WithError(err).
 			Errorf("stopping application: %v (%v)", appName, err)
 	} else {
-		Log.WithFields(fields).Infof("application stoped: %v", appName)
+		Log.WithFields(fields).Infof("application %s: %v", eventName, appName)
 	}
 }
 
-// LifecycleStop logs the stop of an application
+// ServerClosed logs the clos of an server
 func ServerClosed(appName string) {
 	fields := logrus.Fields{
 		"type":  "application",
