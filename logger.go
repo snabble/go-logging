@@ -2,6 +2,7 @@ package logging
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -75,7 +76,12 @@ func NewEntry(logger *Logger) *Entry {
 }
 
 func (entry *Entry) WithError(err error) *Entry {
-	return entry.WithField(logrus.ErrorKey, err)
+	withError := entry.WithField(logrus.ErrorKey, err)
+	stacktrace := ExtractStacktrace(err)
+	if stacktrace != nil {
+		 return withError.WithField("stacktrace", fmt.Sprintf("%+v", stacktrace))
+	}
+	return withError
 }
 
 func (entry *Entry) WithContext(ctx context.Context) *Entry {

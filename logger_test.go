@@ -11,6 +11,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/xerrors"
 )
 
 type logReccord struct {
@@ -49,6 +50,25 @@ func Test_Logger_Set(t *testing.T) {
 	// then: only the error text is contained
 	// and it is text formated
 	a.Regexp(`^time.* level\=error msg\=oops foo\=bar.*`, b.String())
+}
+
+func Test_Logger_WithError(t *testing.T) {
+	a := assert.New(t)
+
+	// given: an logger in text format
+	Set("info", true)
+	defer Set("info", false)
+	Log.Formatter.(*logrus.TextFormatter).DisableColors = true
+	b := bytes.NewBuffer(nil)
+	Log.Out = b
+
+	err := func() error {
+		return xerrors.Errorf("found an error: %w", errors.New("an error occurred"))
+	}()
+	Log.WithError(err).Error("oops")
+
+	print( b.String())
+	a.Regexp(`^time.* level\=error msg\=oops error\="found an error: an error occurred" stacktrace\=".*"`, b.String())
 }
 
 func Test_Logger_Call(t *testing.T) {
