@@ -45,12 +45,12 @@ func Test_ReadCookieValue(t *testing.T) {
 	a.True(found)
 	a.Equal("", v)
 
-	v, found = ReadCookieValue(http.Header{"Cookie": {";"}}, "foo")
+	_, found = ReadCookieValue(http.Header{"Cookie": {";"}}, "foo")
 	a.False(found)
 
-	v, found = ReadCookieValue(http.Header{"Cookie": {""}}, "foo")
+	_, found = ReadCookieValue(http.Header{"Cookie": {""}}, "foo")
 	a.False(found)
 
-	v, found = ReadCookieValue(http.Header{}, "foo")
+	_, found = ReadCookieValue(http.Header{}, "foo")
 	a.False(found)
 }
