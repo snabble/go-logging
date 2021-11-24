@@ -51,10 +51,14 @@ func NewStacktrace() *Stacktrace {
 	return &stacktrace
 }
 
-// ExtractStacktrace creates a new Stacktrace based on the given error.
+// ExtractStacktrace creates a new Stacktrace based on the given error, if the passed
+// in error is nil, nil is returned.
 func ExtractStacktrace(err error) *Stacktrace {
-	method := extractReflectedStacktraceMethod(err)
+	if err == nil {
+		return nil
+	}
 
+	method := extractReflectedStacktraceMethod(err)
 	var pcs []uintptr
 
 	if method.IsValid() {
