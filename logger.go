@@ -21,6 +21,7 @@ var Log *Logger
 
 type Logger struct {
 	*logrus.Logger
+	config *LogConfig
 }
 
 func (logger *Logger) WithError(err error) *Entry {
@@ -79,7 +80,7 @@ func (entry *Entry) WithError(err error) *Entry {
 	withError := entry.WithField(logrus.ErrorKey, err)
 	stacktrace := ExtractStacktrace(err)
 	if stacktrace != nil {
-		 return withError.WithField("stacktrace", fmt.Sprintf("%+v", stacktrace))
+		return withError.WithField("stacktrace", fmt.Sprintf("%+v", stacktrace))
 	}
 	return withError
 }

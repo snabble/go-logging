@@ -6,20 +6,37 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
+
+type LogMiddlewareWithSpan struct {
+	Next http.Handler
+}
 
 type LogMiddleware struct {
 	Next http.Handler
 }
 
-func NewLogMiddleware(next http.Handler) *LogMiddleware {
-	return &LogMiddleware{
-		Next: next,
+func NewLogMiddleware(next http.Handler) http.Handler {
+	if Log.config.EnableTraces {
+		return otelhttp.NewHandler(&LogMiddlewareWithSpan{Next: next}, "common")
 	}
+	return &LogMiddleware{Next: next}
+}
+
+func (mw *LogMiddlewareWithSpan) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	//span := trace.SpanFromContext(r.Context())
+	//defer span.End()
+
+	serveHTTP(w, r, mw.Next)
 }
 
 func (mw *LogMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	EnsureCorrelationId(r)
+	serveHTTP(w, r, mw.Next)
+}
+
+func serveHTTP(w http.ResponseWriter, r *http.Request, mw http.Handler) {
 	start := time.Now()
 
 	defer func() {
@@ -29,7 +46,7 @@ func (mw *LogMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	lrw := &logResponseWriter{ResponseWriter: w}
-	mw.Next.ServeHTTP(lrw, r)
+	mw.ServeHTTP(lrw, r)
 
 	Access(r, start, lrw.statusCode)
 }
