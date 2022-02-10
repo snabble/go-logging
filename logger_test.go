@@ -347,14 +347,23 @@ func Test_Logger_GetRemoteIp3(t *testing.T) {
 	ret := getRemoteIp(req)
 	a.Equal("1234", ret)
 }
-
 func logRecordFromBuffer(b *bytes.Buffer) *logRecord {
-	data := &logRecord{}
-	err := json.Unmarshal(b.Bytes(), data)
-	if err != nil {
-		panic(err.Error() + " " + b.String())
+	return &logRecordsFromBuffer(b)[0]
+}
+
+func logRecordsFromBuffer(b *bytes.Buffer) []logRecord {
+	rawLogMessages := bytes.Split(bytes.TrimRight(b.Bytes(), "\n"), []byte("\n"))
+
+	var records []logRecord
+	for _, value := range rawLogMessages {
+		var record = logRecord{}
+		err := json.Unmarshal(value, &record)
+		if err != nil {
+			panic(err.Error() + " " + b.String())
+		}
+		records = append(records, record)
 	}
-	return data
+	return records
 }
 
 func mapFromBuffer(b *bytes.Buffer) map[string]interface{} {

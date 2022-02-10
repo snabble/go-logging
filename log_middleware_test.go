@@ -17,18 +17,12 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
 )
 
-func initTracer() *sdktrace.TracerProvider {
-	tp := sdktrace.NewTracerProvider(
-		sdktrace.WithSampler(sdktrace.AlwaysSample()),
-		sdktrace.WithSpanProcessor(tracetest.NewSpanRecorder()),
-		sdktrace.WithResource(resource.NewWithAttributes(semconv.SchemaURL, semconv.ServiceNameKey.String("logging-test"))),
-	)
-	otel.SetTracerProvider(tp)
-	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
-	return tp
-}
+const (
+	fallBackForSpan  = "0000000000000000"
+	fallBackForTrace = "00000000000000000000000000000000"
+)
 
-func Test_LogMiddleware_GeneratesTraces(t *testing.T) {
+func Test_LogMiddleware_GeneratesTracesAndSubSpans(t *testing.T) {
 	tp := initTracer()
 	defer func() { _ = tp.Shutdown(context.Background()) }()
 
@@ -39,9 +33,9 @@ func Test_LogMiddleware_GeneratesTraces(t *testing.T) {
 	Log.Out = b
 
 	lm := NewLogMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		//ctx, childSpan := otel.Tracer("").Start(r.Context(), "child")
-		//defer childSpan.End()
-		//Log.Logger.WithContext(ctx).Info("That's awesome!")
+		ctx, childSpan := otel.Tracer("").Start(r.Context(), "child")
+		defer childSpan.End()
+		Log.Logger.WithContext(ctx).Info("That's awesome!")
 		w.WriteHeader(200)
 	}))
 
@@ -49,14 +43,27 @@ func Test_LogMiddleware_GeneratesTraces(t *testing.T) {
 
 	lm.ServeHTTP(httptest.NewRecorder(), r)
 
-	data := logRecordFromBuffer(b)
+	logRecords := logRecordsFromBuffer(b)
+	firstRecord := logRecords[0]
+	assert.Contains(t, firstRecord.Message, "That's awesome!")
+	assert.Contains(t, firstRecord.Level, "info")
+	assertHasTraceAndSpan(t, firstRecord)
 
-	assert.Contains(t, data.Message, "200 ->GET /foo")
-	assert.Contains(t, data.Level, "info")
-	assert.Len(t, data.SpanID, 16)
-	assert.NotEqual(t, "0000000000000000", data.SpanID)
-	assert.Len(t, data.TraceID, 32)
-	assert.NotEqual(t, "00000000000000000000000000000000", data.TraceID)
+	secondRecord := logRecords[1]
+	assert.Contains(t, secondRecord.Message, "200 ->GET /foo")
+	assert.Contains(t, secondRecord.Level, "info")
+	assertHasTraceAndSpan(t, secondRecord)
+
+	assert.Equal(t, firstRecord.TraceID, secondRecord.TraceID)
+	assert.NotEqual(t, firstRecord.SpanID, secondRecord.SpanID)
+}
+
+func assertHasTraceAndSpan(t *testing.T, record logRecord) {
+	assert.Len(t, record.SpanID, 16)
+	assert.NotEqual(t, fallBackForSpan, record.SpanID)
+
+	assert.Len(t, record.TraceID, 32)
+	assert.NotEqual(t, fallBackForTrace, record.TraceID)
 }
 
 func Test_LogMiddleware_Panic(t *testing.T) {
@@ -126,4 +133,15 @@ func Test_LogMiddleware_Log_404(t *testing.T) {
 	a.Equal("404 ->GET /foo", data.Message)
 	a.Equal(404, data.ResponseStatus)
 	a.Equal("warning", data.Level)
+}
+
+func initTracer() *sdktrace.TracerProvider {
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithSampler(sdktrace.AlwaysSample()),
+		sdktrace.WithSpanProcessor(tracetest.NewSpanRecorder()),
+		sdktrace.WithResource(resource.NewWithAttributes(semconv.SchemaURL, semconv.ServiceNameKey.String("logging-test"))),
+	)
+	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+	return tp
 }
