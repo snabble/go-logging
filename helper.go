@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"github.com/uptrace/opentelemetry-go-extra/otellogrus"
 )
 
 // AccessLogCookiesBlacklist The of cookies which should not be logged
@@ -18,24 +19,53 @@ var AccessLogCookiesBlacklist = []string{}
 var LifecycleEnvVars = []string{"BUILD_NUMBER", "BUILD_HASH", "BUILD_DATE"}
 
 func init() {
-	Set("info", false)
+	_ = Set("info", false)
+}
+
+var DefaultLogConfig = LogConfig{EnableTraces: false, EnableTextLogging: false}
+
+type LogConfig struct {
+	EnableTraces      bool
+	EnableTextLogging bool
 }
 
 // Set creates a new Logger with the matching specification
 func Set(level string, textLogging bool) error {
+	config := &LogConfig{EnableTraces: false, EnableTextLogging: textLogging}
+	return SetWithConfig(level, config)
+}
+
+// SetWithConfig creates a new Logger with the matching specification based on the config, pass nil to use
+// the defaults.
+func SetWithConfig(level string, config *LogConfig) error {
+	if config == nil {
+		config = &DefaultLogConfig
+	}
+
 	l, err := logrus.ParseLevel(level)
 	if err != nil {
 		return err
 	}
 
 	logger := logrus.New()
-	if textLogging {
+	if config.EnableTextLogging {
 		logger.Formatter = &logrus.TextFormatter{DisableColors: true}
 	} else {
 		logger.Formatter = &LogstashFormatter{TimestampFormat: time.RFC3339Nano}
 	}
+
+	if config.EnableTraces {
+		logger.AddHook(otellogrus.NewHook(otellogrus.WithLevels(
+			logrus.PanicLevel,
+			logrus.FatalLevel,
+			logrus.ErrorLevel,
+			logrus.WarnLevel,
+			logrus.InfoLevel,
+		)))
+	}
+
 	logger.Level = l
-	Log = &Logger{logger}
+	Log = &Logger{Logger: logger, config: config}
 	return nil
 }
 
@@ -90,8 +120,6 @@ func access(r *http.Request, start time.Time, statusCode int, err error) *Entry 
 		fields[logrus.ErrorKey] = err.Error()
 	}
 
-	setCorrelationIds(fields, r.Header)
-
 	cookies := map[string]string{}
 	for _, c := range r.Cookies() {
 		if !contains(AccessLogCookiesBlacklist, c.Name) {
@@ -102,7 +130,7 @@ func access(r *http.Request, start time.Time, statusCode int, err error) *Entry 
 		fields["cookies"] = cookies
 	}
 
-	return Log.WithFields(fields)
+	return Log.WithContext(r.Context()).WithFields(fields)
 }
 
 // Call logs the result of an outgoing call
@@ -132,8 +160,6 @@ func fieldsForCall(r *http.Request, resp *http.Response, start time.Time, err er
 		"method":     r.Method,
 		"duration":   time.Since(start).Nanoseconds() / 1000000,
 	}
-
-	setCorrelationIds(fields, r.Header)
 
 	if err != nil {
 		fields[logrus.ErrorKey] = err.Error()
@@ -193,7 +219,6 @@ func Application(h http.Header) *Entry {
 	fields := logrus.Fields{
 		"type": "application",
 	}
-	setCorrelationIds(fields, h)
 	return Log.WithFields(fields)
 }
 
@@ -300,18 +325,6 @@ func getRemoteIp(r *http.Request) string {
 		return r.RemoteAddr
 	}
 	return host
-}
-
-func setCorrelationIds(fields logrus.Fields, h http.Header) {
-	correlationId := GetCorrelationId(h)
-	if correlationId != "" {
-		fields["correlation_id"] = correlationId
-	}
-
-	userCorrelationId := GetUserCorrelationId(h)
-	if userCorrelationId != "" {
-		fields["user_correlation_id"] = userCorrelationId
-	}
 }
 
 func contains(s []string, e string) bool {

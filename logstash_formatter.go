@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/otel/trace"
 )
 
 // Taken from github.com/bshuster-repo/logrus-logstash-hook
@@ -29,14 +30,14 @@ func (f *LogstashFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 func (f *LogstashFormatter) FormatWithPrefix(entry *logrus.Entry, prefix string) ([]byte, error) {
 	fields := make(logrus.Fields)
 	for k, v := range entry.Data {
-		//remove the prefix when sending the fields to logstash
+		// remove the prefix when sending the fields to logstash
 		if prefix != "" && strings.HasPrefix(k, prefix) {
 			k = strings.TrimPrefix(k, prefix)
 		}
 
 		switch v := v.(type) {
 		case error:
-			// Otherwise errors are ignored by `encoding/json`
+			// Otherwise, errors are ignored by `encoding/json`
 			// https://github.com/Sirupsen/logrus/issues/377
 			fields[k] = v.Error()
 		default:
@@ -76,6 +77,10 @@ func (f *LogstashFormatter) FormatWithPrefix(entry *logrus.Entry, prefix string)
 		}
 		fields["type"] = f.Type
 	}
+
+	spanContext := trace.SpanContextFromContext(entry.Context)
+	fields["trace"] = spanContext.TraceID()
+	fields["span"] = spanContext.SpanID()
 
 	serialized, err := json.Marshal(fields)
 	if err != nil {
