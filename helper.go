@@ -213,8 +213,7 @@ func Cacheinfo(url string, hit bool) {
 		Debug(msg)
 }
 
-// Application Return a log entry for application logs,
-// prefilled with the correlation ids out of the supplied request.
+// Application Return a log entry for application logs.
 func Application(h http.Header) *Entry {
 	fields := logrus.Fields{
 		"type": "application",
