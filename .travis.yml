@@ -1,9 +1,12 @@
 language: go
 go:
 - 1.17.x
+before_install:
+- go install honnef.co/go/tools/cmd/staticcheck@latest
 script:
 - go vet github.com/snabble/go-logging/...
 - go test --cover github.com/snabble/go-logging/...
+- staticcheck ./...
 
 notifications:
   email: false
