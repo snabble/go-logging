@@ -22,7 +22,10 @@ func init() {
 	_ = Set("info", false)
 }
 
-var DefaultLogConfig = LogConfig{EnableTraces: false, EnableTextLogging: false}
+var DefaultLogConfig = LogConfig{
+	EnableTraces:      true,
+	EnableTextLogging: false,
+}
 
 type LogConfig struct {
 	EnableTraces      bool
@@ -31,7 +34,7 @@ type LogConfig struct {
 
 // Set creates a new Logger with the matching specification
 func Set(level string, textLogging bool) error {
-	config := &LogConfig{EnableTraces: false, EnableTextLogging: textLogging}
+	config := &LogConfig{EnableTraces: true, EnableTextLogging: textLogging}
 	return SetWithConfig(level, config)
 }
 
