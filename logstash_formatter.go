@@ -79,8 +79,10 @@ func (f *LogstashFormatter) FormatWithPrefix(entry *logrus.Entry, prefix string)
 	}
 
 	spanContext := trace.SpanContextFromContext(entry.Context)
-	fields["trace"] = spanContext.TraceID()
-	fields["span"] = spanContext.SpanID()
+	if spanContext.IsValid() {
+		fields["trace"] = spanContext.TraceID()
+		fields["span"] = spanContext.SpanID()
+	}
 
 	serialized, err := json.Marshal(fields)
 	if err != nil {
