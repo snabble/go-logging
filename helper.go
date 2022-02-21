@@ -300,7 +300,7 @@ func logApplicationLifecycleEvent(appName string, eventName string, err error) {
 	}
 }
 
-// ServerClosed logs the clos of an server
+// ServerClosed logs the closing of an server
 func ServerClosed(appName string) {
 	fields := logrus.Fields{
 		"type":  "application",
