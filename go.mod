@@ -11,7 +11,6 @@ require (
 	go.opentelemetry.io/otel/sdk v1.3.0
 	go.opentelemetry.io/otel/trace v1.4.0
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
-	gorm.io/gorm v1.22.5
 )
 
 require (
@@ -19,8 +18,6 @@ require (
 	github.com/felixge/httpsnoop v1.0.2 // indirect
 	github.com/go-logr/logr v1.2.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/jinzhu/now v1.1.4 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelutil v0.1.8 // indirect
 	go.opentelemetry.io/otel/internal/metric v0.27.0 // indirect
