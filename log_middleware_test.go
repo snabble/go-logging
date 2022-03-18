@@ -39,7 +39,7 @@ func Test_LogMiddleware_GeneratesTracesAndSubSpans(t *testing.T) {
 		w.WriteHeader(200)
 	}))
 
-	r, _ := http.NewRequest("GET", "https://www.example.org/foo", nil)
+	r, _ := http.NewRequest(http.MethodGet, "https://www.example.org/foo", nil)
 
 	lm.ServeHTTP(httptest.NewRecorder(), r)
 
@@ -77,7 +77,7 @@ func Test_LogMiddleware_Panic(t *testing.T) {
 		i[100]++
 	}))
 
-	r, _ := http.NewRequest("GET", "http://www.example.org/foo", nil)
+	r, _ := http.NewRequest(http.MethodGet, "http://www.example.org/foo", nil)
 
 	lm.ServeHTTP(httptest.NewRecorder(), r)
 
@@ -96,12 +96,12 @@ func Test_LogMiddleware_Log_implicit200(t *testing.T) {
 	b := bytes.NewBuffer(nil)
 	Log.Out = b
 
-	// and a handler which gets an 200er code implicitly
+	// and a handler which gets a 200er code implicitly
 	lm := NewLogMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte("hello"))
 	}))
 
-	r, _ := http.NewRequest("GET", "http://www.example.org/foo", nil)
+	r, _ := http.NewRequest(http.MethodGet, "http://www.example.org/foo", nil)
 
 	lm.ServeHTTP(httptest.NewRecorder(), r)
 
@@ -110,6 +110,36 @@ func Test_LogMiddleware_Log_implicit200(t *testing.T) {
 	a.Equal("200 ->GET /foo", data.Message)
 	a.Equal(200, data.ResponseStatus)
 	a.Equal("info", data.Level)
+}
+
+func Test_LogMiddleware_Log_HealthRequestAreNotLogged(t *testing.T) {
+	tests := []struct {
+		name           string
+		method         string
+		url            string
+		containsLogMsg bool
+	}{
+		{"health on base path", http.MethodGet, "http://www.example.org/health", false},
+		{"health on sub path", http.MethodGet, "http://www.example.org/sub/health", false},
+		{"post to health", http.MethodPost, "http://www.example.org/sub/health", true},
+		{"health in query param", http.MethodGet, "http://www.example.org/sub?health", true},
+		{"health somewhere in path", http.MethodGet, "http://www.example.org/health/more", true},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			logBuffer := bytes.NewBuffer(nil)
+			Log.Out = logBuffer
+
+			lm := NewLogMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				_, _ = w.Write([]byte("OK++"))
+			}))
+
+			r, _ := http.NewRequest(test.method, test.url, nil)
+
+			lm.ServeHTTP(httptest.NewRecorder(), r)
+			assert.Equal(t, test.containsLogMsg, logBuffer.Len() > 0)
+		})
+	}
 }
 
 func Test_LogMiddleware_Log_404(t *testing.T) {
@@ -124,7 +154,7 @@ func Test_LogMiddleware_Log_404(t *testing.T) {
 		w.WriteHeader(404)
 	}))
 
-	r, _ := http.NewRequest("GET", "http://www.example.org/foo", nil)
+	r, _ := http.NewRequest(http.MethodGet, "http://www.example.org/foo", nil)
 
 	lm.ServeHTTP(httptest.NewRecorder(), r)
 
