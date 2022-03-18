@@ -84,12 +84,20 @@ func Access(r *http.Request, start time.Time, statusCode int) {
 	}
 
 	if statusCode >= 200 && statusCode <= 399 {
-		e.Info(msg)
+		if isHealthRequest(r) {
+			e.Debug(msg)
+		} else {
+			e.Info(msg)
+		}
 	} else if statusCode >= 400 && statusCode <= 499 {
 		e.Warn(msg)
 	} else {
 		e.Error(msg)
 	}
+}
+
+func isHealthRequest(r *http.Request) bool {
+	return r.Method == http.MethodGet && strings.HasSuffix(r.URL.Path, "/health")
 }
 
 // AccessError logs an error while accessing
