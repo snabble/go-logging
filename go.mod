@@ -4,13 +4,13 @@ go 1.17
 
 require (
 	github.com/sirupsen/logrus v1.8.1
+	github.com/snabble/go-utils/errorsx v0.0.0-20220427081420-5f520cd41a3a
 	github.com/stretchr/testify v1.7.0
 	github.com/uptrace/opentelemetry-go-extra/otellogrus v0.1.8
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.29.0
 	go.opentelemetry.io/otel v1.4.0
 	go.opentelemetry.io/otel/sdk v1.3.0
 	go.opentelemetry.io/otel/trace v1.4.0
-	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
 )
 
 require (
@@ -23,5 +23,6 @@ require (
 	go.opentelemetry.io/otel/internal/metric v0.27.0 // indirect
 	go.opentelemetry.io/otel/metric v0.27.0 // indirect
 	golang.org/x/sys v0.0.0-20220209214540-3681064d5158 // indirect
+	golang.org/x/xerrors v0.0.0-20220411194840-2f41105eb62f // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
 )

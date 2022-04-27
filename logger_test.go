@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"github.com/snabble/go-utils/errorsx"
 	"github.com/stretchr/testify/assert"
-	"golang.org/x/xerrors"
 )
 
 type logRecord struct {
@@ -63,7 +63,7 @@ func Test_Logger_WithError(t *testing.T) {
 	Log.Out = b
 
 	err := func() error {
-		return xerrors.Errorf("found an error: %w", errors.New("an error occurred"))
+		return errorsx.Errorf("found an error: %w", errors.New("an error occurred"))
 	}()
 	Log.WithError(err).Error("oops")
 
