@@ -59,6 +59,7 @@ func Test_LogMiddleware_GeneratesTracesAndSubSpans(t *testing.T) {
 }
 
 func assertHasTraceAndSpan(t *testing.T, record logRecord) {
+	t.Helper()
 	assert.Len(t, record.SpanID, 16)
 	assert.NotEqual(t, fallBackForSpan, record.SpanID)
 
@@ -149,7 +150,7 @@ func Test_LogMiddleware_Log_404(t *testing.T) {
 	b := bytes.NewBuffer(nil)
 	Log.Out = b
 
-	// and a handler which gets an 404er code explicitly
+	// and a handler which gets a 404 code explicitly
 	lm := NewLogMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(404)
 	}))
