@@ -13,7 +13,7 @@ import (
 	"github.com/uptrace/opentelemetry-go-extra/otellogrus"
 )
 
-// AccessLogCookiesBlacklist The of cookies which should not be logged
+// AccessLogCookiesBlacklist The list of cookies which should not be logged
 var AccessLogCookiesBlacklist = []string{}
 
 var LifecycleEnvVars = []string{"BUILD_NUMBER", "BUILD_HASH", "BUILD_DATE"}
@@ -114,7 +114,7 @@ func access(r *http.Request, start time.Time, statusCode int, err error) *Entry 
 	fields := logrus.Fields{
 		"type":       "access",
 		"@timestamp": start,
-		"remote_ip":  getRemoteIp(r),
+		"remote_ip":  getRemoteIP(r),
 		"host":       r.Host,
 		"url":        url,
 		"method":     r.Method,
@@ -207,7 +207,7 @@ func logCall(fields logrus.Fields, r *http.Request, resp *http.Response, err err
 	Log.WithFields(fields).Warn("call, but no response given")
 }
 
-// Cacheinfo logs the hit information a accessing a resource
+// Cacheinfo logs the hit information an accessing a resource
 func Cacheinfo(url string, hit bool) {
 	var msg string
 	if hit {
@@ -308,7 +308,7 @@ func logApplicationLifecycleEvent(appName string, eventName string, err error) {
 	}
 }
 
-// ServerClosed logs the closing of an server
+// ServerClosed logs the closing of a server
 func ServerClosed(appName string) {
 	fields := logrus.Fields{
 		"type":  "application",
@@ -322,7 +322,7 @@ func ServerClosed(appName string) {
 	Log.WithFields(fields).Infof("http server was closed: %v", appName)
 }
 
-func getRemoteIp(r *http.Request) string {
+func getRemoteIP(r *http.Request) string {
 	if r.Header.Get("X-Cluster-Client-Ip") != "" {
 		return r.Header.Get("X-Cluster-Client-Ip")
 	}

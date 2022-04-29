@@ -17,7 +17,7 @@ import (
 type logRecord struct {
 	Type           string            `json:"type"`
 	Timestamp      string            `json:"@timestamp"`
-	RemoteIp       string            `json:"remote_ip"`
+	RemoteIP       string            `json:"remote_ip"`
 	Host           string            `json:"host"`
 	URL            string            `json:"url"`
 	Method         string            `json:"method"`
@@ -47,8 +47,7 @@ func Test_Logger_Set(t *testing.T) {
 	Log.Info("should be ignored ..")
 	Log.WithField("foo", "bar").Error("oops")
 
-	// then: only the error text is contained
-	// and it is text formated
+	// then: only the error text is contained, and it is text formatted
 	a.Regexp(`^time.* level\=error msg\=oops foo\=bar.*`, b.String())
 }
 
@@ -68,7 +67,7 @@ func Test_Logger_WithError(t *testing.T) {
 	}()
 	Log.WithError(err).Error("oops")
 
-	print(b.String())
+	// print(b.String())
 	a.Regexp(`^time.* level\=error msg\=oops error\="found an error: an error occurred" stacktrace\=".*"`, b.String())
 }
 
@@ -165,7 +164,7 @@ func Test_Logger_Access(t *testing.T) {
 	a.Equal("GET", data.Method)
 	a.Equal("HTTP/1.1", data.Proto)
 	a.Equal("201 ->GET /foo?q=bar", data.Message)
-	a.Equal("127.0.0.1", data.RemoteIp)
+	a.Equal("127.0.0.1", data.RemoteIP)
 	a.Equal(201, data.ResponseStatus)
 	a.Equal("access", data.Type)
 	a.Equal("/foo?q=bar", data.URL)
@@ -219,7 +218,7 @@ func Test_Logger_LifecycleStart(t *testing.T) {
 	}
 
 	// and an Environment Variable with the Build Number is set
-	_ = os.Setenv("BUILD_NUMBER", "b666")
+	t.Setenv("BUILD_NUMBER", "b666")
 
 	// when a LifecycleStart is logged
 	LifecycleStart("my-app", someArguments)
@@ -239,7 +238,7 @@ func Test_Logger_LifecycleStop_ByInterrupt(t *testing.T) {
 	Log.Out = b
 
 	// and an Environment Variable with the Build Number is set
-	os.Setenv("BUILD_NUMBER", "b666")
+	t.Setenv("BUILD_NUMBER", "b666")
 
 	// when a LifecycleStart is logged
 	LifecycleStop("my-app", os.Interrupt, nil)
@@ -261,7 +260,7 @@ func Test_Logger_LifecycleStop_ByError(t *testing.T) {
 	Log.Out = b
 
 	// and an Environment Variable with the Build Number is set
-	os.Setenv("BUILD_NUMBER", "b666")
+	t.Setenv("BUILD_NUMBER", "b666")
 
 	// when a LifecycleStart is logged
 	LifecycleStop("my-app", nil, errors.New("error"))
@@ -284,7 +283,7 @@ func Test_Logger_ServerClosed(t *testing.T) {
 	Log.Out = b
 
 	// and an Environment Variable with the Build Number is set
-	os.Setenv("BUILD_NUMBER", "b666")
+	t.Setenv("BUILD_NUMBER", "b666")
 
 	// when a LifecycleStart is logged
 	ServerClosed("my-app")
@@ -329,7 +328,7 @@ func Test_Logger_GetRemoteIp1(t *testing.T) {
 	a := assert.New(t)
 	req, _ := http.NewRequest("GET", "test.com", nil)
 	req.Header["X-Cluster-Client-Ip"] = []string{"1234"}
-	ret := getRemoteIp(req)
+	ret := getRemoteIP(req)
 	a.Equal("1234", ret)
 }
 
@@ -337,7 +336,7 @@ func Test_Logger_GetRemoteIp2(t *testing.T) {
 	a := assert.New(t)
 	req, _ := http.NewRequest("GET", "test.com", nil)
 	req.Header["X-Real-Ip"] = []string{"1234"}
-	ret := getRemoteIp(req)
+	ret := getRemoteIP(req)
 	a.Equal("1234", ret)
 }
 
@@ -345,9 +344,10 @@ func Test_Logger_GetRemoteIp3(t *testing.T) {
 	a := assert.New(t)
 	req, _ := http.NewRequest("GET", "test.com", nil)
 	req.RemoteAddr = "1234:80"
-	ret := getRemoteIp(req)
+	ret := getRemoteIP(req)
 	a.Equal("1234", ret)
 }
+
 func logRecordFromBuffer(b *bytes.Buffer) *logRecord {
 	return &logRecordsFromBuffer(b)[0]
 }

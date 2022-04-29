@@ -14,7 +14,7 @@ import (
 // MIT License (MIT)
 // Copyright (c) 2016 Boaz Shuster
 
-// Formatter generates json in logstash format.
+// LogstashFormatter generates json in logstash format.
 // Logstash site: http://logstash.net/
 type LogstashFormatter struct {
 	Type string // if not empty use for logstash type field.

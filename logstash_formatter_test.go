@@ -24,7 +24,7 @@ func TestLogstashFormatter(t *testing.T) {
 		"one":     1,
 		"pi":      3.14,
 		"bool":    true,
-		"error":   &url.Error{Op: "Get", URL: "http://example.com", Err: fmt.Errorf("The error")},
+		"error":   &url.Error{Op: "Get", URL: "http://example.com", Err: fmt.Errorf("the error")},
 	}
 
 	entry := logrus.WithFields(fields)
@@ -51,7 +51,7 @@ func TestLogstashFormatter(t *testing.T) {
 		{"abc", "type"},
 		{"msg", "message"},
 		{"info", "level"},
-		{"Get \"http://example.com\": The error", "error"},
+		{"Get \"http://example.com\": the error", "error"},
 		// substituted fields
 		{"def", "fields.message"},
 		{"ijk", "fields.level"},
