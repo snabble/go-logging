@@ -185,6 +185,12 @@ func fieldsForCall(r *http.Request, resp *http.Response, start time.Time, err er
 }
 
 func logCall(fields logrus.Fields, r *http.Request, resp *http.Response, err error) {
+	ctxErr := r.Context().Err()
+	if ctxErr != nil {
+		Log.WithFields(fields).Info(fmt.Sprintf("Context canceled for %s-> %s with error: %s", r.Method, r.URL.String(), ctxErr.Error()))
+		return
+	}
+
 	if err != nil {
 		Log.WithFields(fields).Error(err)
 		return
@@ -192,7 +198,7 @@ func logCall(fields logrus.Fields, r *http.Request, resp *http.Response, err err
 
 	if resp != nil {
 		e := Log.WithFields(fields)
-		msg := fmt.Sprintf("%v %v-> %v", resp.StatusCode, r.Method, r.URL.String())
+		msg := fmt.Sprintf("%d %s-> %s", resp.StatusCode, r.Method, r.URL.String())
 
 		if resp.StatusCode >= 200 && resp.StatusCode <= 399 {
 			e.Info(msg)
