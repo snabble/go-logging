@@ -243,13 +243,16 @@ func Application(h http.Header) *Entry {
 func LifecycleStart(appName string, args interface{}) {
 	fields := logrus.Fields{}
 
-	jsonString, err := json.Marshal(args)
-	if err == nil {
-		err := json.Unmarshal(jsonString, &fields)
-		if err != nil {
-			fields["parse_error"] = err.Error()
+	if args != nil {
+		jsonString, err := json.Marshal(args)
+		if err == nil {
+			err := json.Unmarshal(jsonString, &fields)
+			if err != nil {
+				fields["parse_error"] = err.Error()
+			}
 		}
 	}
+
 	fields["type"] = "lifecycle"
 	fields["event"] = "start"
 	for _, env := range LifecycleEnvVars {
