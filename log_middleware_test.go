@@ -3,6 +3,7 @@ package logging
 import (
 	"bytes"
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -74,8 +75,7 @@ func Test_LogMiddleware_Panic(t *testing.T) {
 	Log.Out = b
 
 	lm := NewLogMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var i []int
-		i[100]++
+		panic(errors.New("some"))
 	}))
 
 	r, _ := http.NewRequest(http.MethodGet, "http://www.example.org/foo", nil)
@@ -85,9 +85,29 @@ func Test_LogMiddleware_Panic(t *testing.T) {
 	data := logRecordFromBuffer(b)
 
 	assert.Contains(t, data.Error, "Test_LogMiddleware_Panic.func1")
-	assert.Contains(t, data.Error, "runtime error: index out of range")
-	assert.Contains(t, data.Message, "ERROR ->GET /foo")
-	assert.Contains(t, data.Level, "error")
+	assert.Contains(t, data.Error, "some")
+	assert.Equal(t, data.Message, "ERROR ->GET /foo")
+	assert.Equal(t, data.Level, "error")
+}
+
+func Test_LogMiddleware_Panic_ErrAbortHandler(t *testing.T) {
+	_ = SetWithConfig("info", &LogConfig{EnableTraces: false, EnableTextLogging: false})
+
+	b := bytes.NewBuffer(nil)
+	Log.Out = b
+
+	lm := NewLogMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		panic(http.ErrAbortHandler)
+	}))
+
+	r, _ := http.NewRequest(http.MethodGet, "http://www.example.org/foo", nil)
+
+	lm.ServeHTTP(httptest.NewRecorder(), r)
+
+	data := logRecordFromBuffer(b)
+
+	assert.Equal(t, data.Message, "ABORTED ->GET /foo")
+	assert.Equal(t, data.Level, "info")
 }
 
 func Test_LogMiddleware_Log_implicit200(t *testing.T) {

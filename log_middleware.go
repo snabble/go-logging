@@ -1,6 +1,7 @@
 package logging
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"runtime"
@@ -26,6 +27,11 @@ func (mw *LogMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	defer func() {
 		if rec := recover(); rec != nil {
+			// See: https://pkg.go.dev/net/http#ErrAbortHandler
+			if recErr, ok := rec.(error); ok && errors.Is(recErr, http.ErrAbortHandler) {
+				AccessAborted(r, start)
+				return
+			}
 			AccessError(r, start, fmt.Errorf("PANIC (%v): %v", identifyLogOrigin(), rec))
 		}
 	}()
