@@ -62,7 +62,6 @@ func Test_Logger_WithError(t *testing.T) {
 	Log.Out = b
 
 	err := func() error {
-		//lint:ignore SA1019 There is no alternative available that provides stack-traces.
 		return xerrors.Errorf("found an error: %w", errors.New("an error occurred"))
 	}()
 	Log.WithError(err).Error("oops")
