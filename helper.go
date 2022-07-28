@@ -106,6 +106,11 @@ func AccessError(r *http.Request, start time.Time, err error) {
 	e.Errorf("ERROR ->%v %v", r.Method, r.URL.Path)
 }
 
+func AccessAborted(r *http.Request, start time.Time) {
+	e := access(r, start, 0, nil)
+	e.Infof("ABORTED ->%v %v", r.Method, r.URL.Path)
+}
+
 func access(r *http.Request, start time.Time, statusCode int, err error) *Entry {
 	url := r.URL.Path
 	if r.URL.RawQuery != "" {
