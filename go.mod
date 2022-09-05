@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/testify v1.8.0
-	github.com/uptrace/opentelemetry-go-extra/otellogrus v0.1.15
+	github.com/uptrace/opentelemetry-go-extra/otellogrus v0.1.16
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.34.0
 	go.opentelemetry.io/otel v1.9.0
 	go.opentelemetry.io/otel/sdk v1.9.0
@@ -19,8 +19,8 @@ require (
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/uptrace/opentelemetry-go-extra/otelutil v0.1.15 // indirect
+	github.com/uptrace/opentelemetry-go-extra/otelutil v0.1.16 // indirect
 	go.opentelemetry.io/otel/metric v0.31.0 // indirect
-	golang.org/x/sys v0.0.0-20220731174439-a90be440212d // indirect
+	golang.org/x/sys v0.0.0-20220829200755-d48e67d00261 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
