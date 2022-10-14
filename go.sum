@@ -23,12 +23,12 @@ github.com/uptrace/opentelemetry-go-extra/otellogrus v0.1.17 h1:FeCTrRenM5ucXWMp
 github.com/uptrace/opentelemetry-go-extra/otellogrus v0.1.17/go.mod h1:CXKQH9iiW89FahjDENpC7ES9iUQTIyTE2V2aQlLQme8=
 github.com/uptrace/opentelemetry-go-extra/otelutil v0.1.17 h1:fcKgoKi1dGCFr1zTP0mKzZDGcMliY2hBmBjpGVf/ee4=
 github.com/uptrace/opentelemetry-go-extra/otelutil v0.1.17/go.mod h1:wl/W+O/95rYcMa67D9qQ+8/IJEztbyYSUkdT7L6t+p4=
-go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.36.2 h1:0xM1ukX7TeKmHZSPrE6ISujp4wUmXtqHJUVuNKtNtoY=
-go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.36.2/go.mod h1:0jErEUghjmDAC8iXe3lm3XJoJ1jblePjblQneGQAnrI=
+go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.36.3 h1:SGz6Fnp7blR+sskRZkyuFDb3qI1d8I0ygLh13F+sw6I=
+go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.36.3/go.mod h1:+OXcluxum2GicWQ9lMXLQkLkOWoaw20OrVbYq6kkPks=
 go.opentelemetry.io/otel v1.11.0 h1:kfToEGMDq6TrVrJ9Vht84Y8y9enykSZzDDZglV0kIEk=
 go.opentelemetry.io/otel v1.11.0/go.mod h1:H2KtuEphyMvlhZ+F7tg9GRhAOe60moNx61Ex+WmiKkk=
-go.opentelemetry.io/otel/metric v0.32.2 h1:q4il3sGUfyfGJIJgjYwEnwWoI4XAHitisQ/Z2y9N3PA=
-go.opentelemetry.io/otel/metric v0.32.2/go.mod h1:iLPP7FaKMAD5BIxJ2VX7f2KTuz//0QK2hEUyti5psqQ=
+go.opentelemetry.io/otel/metric v0.32.3 h1:dMpnJYk2KULXr0j8ph6N7+IcuiIQXlPXD4kix9t7L9c=
+go.opentelemetry.io/otel/metric v0.32.3/go.mod h1:pgiGmKohxHyTPHGOff+vrtIH39/R9fiO/WoenUQ3kcc=
 go.opentelemetry.io/otel/sdk v1.10.0 h1:jZ6K7sVn04kk/3DNUdJ4mqRlGDiXAVuIG+MMENpTNdY=
 go.opentelemetry.io/otel/sdk v1.10.0/go.mod h1:vO06iKzD5baltJz1zarxMCNHFpUlUiOy4s65ECtn6kE=
 go.opentelemetry.io/otel/trace v1.11.0 h1:20U/Vj42SX+mASlXLmSGBg6jpI1jQtv682lZtTAOVFI=
