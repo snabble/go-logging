@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"github.com/uptrace/opentelemetry-go-extra/otellogrus"
+	"github.com/snabble/go-utils/tracex"
 )
 
 // AccessLogCookiesBlacklist The list of cookies which should not be logged
@@ -58,13 +58,7 @@ func SetWithConfig(level string, config *LogConfig) error {
 	}
 
 	if config.EnableTraces {
-		logger.AddHook(otellogrus.NewHook(otellogrus.WithLevels(
-			logrus.PanicLevel,
-			logrus.FatalLevel,
-			logrus.ErrorLevel,
-			logrus.WarnLevel,
-			logrus.InfoLevel,
-		)))
+		logger.AddHook(tracex.NewLogrusHook())
 	}
 
 	logger.Level = l
