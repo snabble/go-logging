@@ -8,7 +8,7 @@ require (
 	github.com/uptrace/opentelemetry-go-extra/otellogrus v0.1.18
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.38.0
 	go.opentelemetry.io/otel v1.12.0
-	go.opentelemetry.io/otel/sdk v1.11.1
+	go.opentelemetry.io/otel/sdk v1.12.0
 	go.opentelemetry.io/otel/trace v1.12.0
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2
 )
