@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/snabble/go-utils/tracex"
+	"github.com/snabble/go-logging/v2/tracex"
 )
 
 type LogMiddleware struct {

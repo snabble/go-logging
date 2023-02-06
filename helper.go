@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"github.com/snabble/go-utils/tracex"
+	"github.com/snabble/go-logging/v2/tracex"
 )
 
 // AccessLogCookiesBlacklist The list of cookies which should not be logged

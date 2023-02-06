@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"github.com/snabble/go-utils/tracex"
+	"github.com/snabble/go-logging/v2/tracex"
 )
 
 // Taken from github.com/bshuster-repo/logrus-logstash-hook
