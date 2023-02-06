@@ -17,6 +17,12 @@ func TraceAndSpan(ctx context.Context, fields logrus.Fields) {
 	}
 }
 
+// BackgroundContextWithSpan creates a new context with the same span as ctx.
+// This is useful for tracing functions that should not be interrupted if the caller cancels or times out.
+func BackgroundContextWithSpan(ctx context.Context) context.Context {
+	return trace.ContextWithSpan(context.Background(), trace.SpanFromContext(ctx))
+}
+
 type Tracer = trace.Tracer
 
 // GetTracer returns the default otel tracer. You probably want to use NewTracerProvider instead.
