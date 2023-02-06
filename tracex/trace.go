@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -14,4 +15,11 @@ func TraceAndSpan(ctx context.Context, fields logrus.Fields) {
 		fields["trace"] = spanContext.TraceID()
 		fields["span"] = spanContext.SpanID()
 	}
+}
+
+type Tracer = trace.Tracer
+
+// GetTracer returns the default otel tracer. You probably want to use NewTracerProvider instead.
+func GetTracer() trace.Tracer {
+	return otel.GetTracerProvider().Tracer("")
 }
