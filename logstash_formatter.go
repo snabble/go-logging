@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"go.opentelemetry.io/otel/trace"
+	"github.com/snabble/go-logging/v2/tracex"
 )
 
 // Taken from github.com/bshuster-repo/logrus-logstash-hook
@@ -78,11 +78,7 @@ func (f *LogstashFormatter) FormatWithPrefix(entry *logrus.Entry, prefix string)
 		fields["type"] = f.Type
 	}
 
-	spanContext := trace.SpanContextFromContext(entry.Context)
-	if spanContext.IsValid() {
-		fields["trace"] = spanContext.TraceID()
-		fields["span"] = spanContext.SpanID()
-	}
+	tracex.TraceAndSpan(entry.Context, fields)
 
 	serialized, err := json.Marshal(fields)
 	if err != nil {

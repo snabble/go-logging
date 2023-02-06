@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"github.com/snabble/go-logging/v2/tracex"
 )
 
 type LogMiddleware struct {
@@ -17,7 +17,7 @@ type LogMiddleware struct {
 
 func NewLogMiddleware(next http.Handler) http.Handler {
 	if Log.config.EnableTraces {
-		return otelhttp.NewHandler(&LogMiddleware{Next: next}, "common")
+		return tracex.NewHandler(&LogMiddleware{Next: next}, "common")
 	}
 	return &LogMiddleware{Next: next}
 }
