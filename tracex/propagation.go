@@ -19,7 +19,7 @@ func (t *tracePropagation) Extract(ctx context.Context, carrier map[string]strin
 }
 
 func (t *tracePropagation) Fields() []string {
-	return t.Fields()
+	return t.propagation.Fields()
 }
 
 type TracePropagation interface {

@@ -20,7 +20,7 @@ func (t *traceHeaderPropagation) Extract(ctx context.Context, carrier http.Heade
 }
 
 func (t *traceHeaderPropagation) Fields() []string {
-	return t.Fields()
+	return t.propagation.Fields()
 }
 
 type TraceHeaderPropagation interface {
