@@ -9,12 +9,13 @@ import (
 )
 
 const (
-	ScopeField    = "scope"
-	ProjectField  = "project"
-	ShopField     = "shop"
-	CheckoutField = "checkout"
-	OrderField    = "order"
-	DurationField = "duration"
+	ScopeField          = "scope"
+	ProjectField        = "project"
+	ShopField           = "shop"
+	CheckoutField       = "checkout"
+	OrderField          = "order"
+	CheckoutDeviceField = "checkoutDevice"
+	DurationField       = "duration"
 )
 
 var Log *Logger
@@ -52,16 +53,20 @@ func (logger *Logger) WithScope(scope string) *Entry {
 	return NewEntry(logger).WithScope(scope)
 }
 
-func (logger *Logger) WithProject(project string) *Entry {
-	return NewEntry(logger).WithField(ProjectField, project)
+func (logger *Logger) WithProject(projectID string) *Entry {
+	return NewEntry(logger).WithField(ProjectField, projectID)
 }
 
-func (logger *Logger) WithShop(shop string) *Entry {
-	return NewEntry(logger).WithField(ShopField, shop)
+func (logger *Logger) WithShop(shopID string) *Entry {
+	return NewEntry(logger).WithField(ShopField, shopID)
 }
 
-func (logger *Logger) WithCheckout(checkout string) *Entry {
-	return NewEntry(logger).WithField(CheckoutField, checkout)
+func (logger *Logger) WithCheckout(checkoutID string) *Entry {
+	return NewEntry(logger).WithField(CheckoutField, checkoutID)
+}
+
+func (logger *Logger) WithCheckoutDevice(checkoutDeviceID string) *Entry {
+	return NewEntry(logger).WithField(CheckoutField, checkoutDeviceID)
 }
 
 func (logger *Logger) WithOrder(order string) *Entry {
@@ -109,20 +114,24 @@ func (entry *Entry) WithScope(scope string) *Entry {
 	return entry.WithField(ScopeField, scope)
 }
 
-func (entry *Entry) WithProject(project string) *Entry {
-	return entry.WithField(ProjectField, project)
+func (entry *Entry) WithProject(projectID string) *Entry {
+	return entry.WithField(ProjectField, projectID)
 }
 
 func (entry *Entry) WithShop(shop string) *Entry {
 	return entry.WithField(ShopField, shop)
 }
 
-func (entry *Entry) WithCheckout(checkout string) *Entry {
-	return entry.WithField(CheckoutField, checkout)
+func (entry *Entry) WithCheckout(checkoutID string) *Entry {
+	return entry.WithField(CheckoutField, checkoutID)
 }
 
-func (entry *Entry) WithOrder(order string) *Entry {
-	return entry.WithField(OrderField, order)
+func (entry *Entry) WithCheckoutDevice(checkoutDeviceID string) *Entry {
+	return entry.WithField(CheckoutDeviceField, checkoutDeviceID)
+}
+
+func (entry *Entry) WithOrder(orderID string) *Entry {
+	return entry.WithField(OrderField, orderID)
 }
 
 func wrapEntry(logrusEntry *logrus.Entry) *Entry {
