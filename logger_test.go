@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -66,8 +67,26 @@ func Test_Logger_WithError(t *testing.T) {
 	}()
 	Log.WithError(err).Error("oops")
 
-	// print(b.String())
 	a.Regexp(`^time.* level\=error msg\=oops error\="found an error: an error occurred"`, b.String())
+}
+
+type identifiable struct{}
+
+func (i identifiable) LogIdentity() map[string]any {
+	return map[string]any{"field": "value"}
+}
+
+func Test_Logger_With(t *testing.T) {
+	a := assert.New(t)
+	var out strings.Builder
+	logrusLogger := logrus.New()
+	logrusLogger.Out = &out
+	logger := Logger{Logger: logrusLogger}
+
+	i := identifiable{}
+	logger.With(i).Info("message")
+
+	a.Contains(out.String(), "field=value")
 }
 
 func Test_Logger_Call(t *testing.T) {
