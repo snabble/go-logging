@@ -18,6 +18,10 @@ const (
 	DurationField       = "duration"
 )
 
+type Identifiable interface {
+	LogIdentity() map[string]any
+}
+
 var Log *Logger
 
 type Logger struct {
@@ -39,6 +43,10 @@ func (logger *Logger) WithField(key string, value interface{}) *Entry {
 
 func (logger *Logger) WithFields(fields logrus.Fields) *Entry {
 	return NewEntry(logger).WithFields(fields)
+}
+
+func (logger *Logger) With(o Identifiable) *Entry {
+	return NewEntry(logger).With(o)
 }
 
 func (logger *Logger) WithTime(t time.Time) *Entry {
@@ -100,6 +108,10 @@ func (entry *Entry) WithField(key string, value interface{}) *Entry {
 
 func (entry *Entry) WithFields(fields logrus.Fields) *Entry {
 	return wrapEntry(entry.Entry.WithFields(fields))
+}
+
+func (entry *Entry) With(o Identifiable) *Entry {
+	return wrapEntry(entry.Entry.WithFields(o.LogIdentity()))
 }
 
 func (entry *Entry) WithTime(t time.Time) *Entry {
