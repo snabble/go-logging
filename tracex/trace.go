@@ -25,7 +25,12 @@ func BackgroundContextWithSpan(ctx context.Context) context.Context {
 
 type Tracer = trace.Tracer
 
-// GetTracer returns the default otel tracer. You probably want to use NewTracerProvider instead.
+// GetTracer returns an unnamed tracer from the global trace provider.
 func GetTracer() trace.Tracer {
 	return otel.GetTracerProvider().Tracer("")
+}
+
+// GetNamedTracer returns a named tracer from the global trace provider.
+func GetNamedTracer(name string) trace.Tracer {
+	return otel.Tracer(name)
 }
