@@ -184,32 +184,32 @@ func fieldsForCall(r *http.Request, resp *http.Response, start time.Time, err er
 }
 
 func logCall(fields logrus.Fields, r *http.Request, resp *http.Response, err error) {
-	ctxErr := r.Context().Err()
-	if ctxErr != nil {
-		Log.WithFields(fields).Info(fmt.Sprintf("Context canceled for %s-> %s with error: %s", r.Method, r.URL.String(), ctxErr.Error()))
+	entry := Log.WithContext(r.Context()).WithFields(fields)
+
+	if ctxErr := r.Context().Err(); ctxErr != nil {
+		entry.Info(fmt.Sprintf("Context canceled for %s-> %s with error: %s", r.Method, r.URL.String(), ctxErr.Error()))
 		return
 	}
 
 	if err != nil {
-		Log.WithFields(fields).Error(err)
+		entry.Error(err)
 		return
 	}
 
 	if resp != nil {
-		e := Log.WithFields(fields)
 		msg := fmt.Sprintf("%d %s-> %s", resp.StatusCode, r.Method, r.URL.String())
 
 		if resp.StatusCode >= 200 && resp.StatusCode <= 399 {
-			e.Info(msg)
+			entry.Info(msg)
 		} else if resp.StatusCode >= 400 && resp.StatusCode <= 499 {
-			e.Warn(msg)
+			entry.Warn(msg)
 		} else {
-			e.Error(msg)
+			entry.Error(msg)
 		}
 		return
 	}
 
-	Log.WithFields(fields).Warn("call, but no response given")
+	entry.Warn("call, but no response given")
 }
 
 // Cacheinfo logs the hit information an accessing a resource
