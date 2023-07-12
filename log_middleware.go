@@ -4,22 +4,64 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"regexp"
 	"runtime"
 	"strings"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/snabble/go-logging/v2/tracex"
 )
 
+type LogMiddlewareConfig struct {
+	// SkipSuccessfulRequestsMatching is a list of go reqular
+	// expressions, the access log is skipped if for request where the
+	// request path matches the expression.
+	SkipSuccessfulRequestsMatching []string
+}
+
 type LogMiddleware struct {
 	Next http.Handler
+
+	skipCache []*regexp.Regexp
 }
 
 func NewLogMiddleware(next http.Handler) http.Handler {
-	if Log.config.EnableTraces {
-		return tracex.NewHandler(&LogMiddleware{Next: next}, "common")
+	handler, _ := AddLogMiddleware(next, LogMiddlewareConfig{})
+	return handler
+}
+
+func AddLogMiddleware(next http.Handler, cfg LogMiddlewareConfig) (http.Handler, error) {
+	skipCache, err := buildSkipCache(cfg)
+	if err != nil {
+		return nil, err
 	}
-	return &LogMiddleware{Next: next}
+
+	middleware := &LogMiddleware{
+		Next:      next,
+		skipCache: skipCache,
+	}
+
+	if Log.config.EnableTraces {
+		return tracex.NewHandler(middleware, "common"), nil
+	}
+
+	return middleware, nil
+}
+
+func buildSkipCache(cfg LogMiddlewareConfig) ([]*regexp.Regexp, error) {
+	var skipCache []*regexp.Regexp
+
+	for _, expr := range cfg.SkipSuccessfulRequestsMatching {
+		compiled, err := regexp.Compile(expr)
+		if err != nil {
+			return nil, fmt.Errorf("invalid matcher: '%s': %w", expr, err)
+		}
+
+		skipCache = append(skipCache, compiled)
+	}
+
+	return skipCache, nil
 }
 
 func (mw *LogMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -39,7 +81,21 @@ func (mw *LogMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	lrw := &logResponseWriter{ResponseWriter: w}
 	mw.Next.ServeHTTP(lrw, r)
 
-	Access(r, start, lrw.statusCode)
+	level := logrus.InfoLevel
+	if mw.isSkipped(r.URL.Path) {
+		level = logrus.DebugLevel
+	}
+
+	access(level, r, start, lrw.statusCode)
+}
+
+func (mw *LogMiddleware) isSkipped(path string) bool {
+	for _, exp := range mw.skipCache {
+		if exp.MatchString(path) {
+			return true
+		}
+	}
+	return false
 }
 
 // identifyLogOrigin returns the location, where a panic was raised

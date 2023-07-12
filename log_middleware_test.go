@@ -133,6 +133,43 @@ func Test_LogMiddleware_Log_implicit200(t *testing.T) {
 	a.Equal("info", data.Level)
 }
 
+func Test_LogMiddleware_Log_SkipSuccessfulRequestsMatching(t *testing.T) {
+	for _, test := range []struct {
+		name   string
+		url    string
+		code   int
+		logged bool
+	}{
+		{"skipped", "https://www.example.org/some/suffix", http.StatusOK, false},
+		{"status not ok", "https://www.example.org/some/suffix", http.StatusInternalServerError, true},
+		{"not matched", "https://www.example.org/some/other", http.StatusOK, true},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			logBuffer := bytes.NewBuffer(nil)
+			Log.Out = logBuffer
+
+			lm, err := AddLogMiddleware(
+				http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					w.WriteHeader(test.code)
+					_, _ = w.Write([]byte("OK++"))
+				}),
+				LogMiddlewareConfig{
+					SkipSuccessfulRequestsMatching: []string{
+						"/suffix$",
+					},
+				},
+			)
+			require.NoError(t, err)
+
+			req, _ := http.NewRequest(http.MethodGet, test.url, nil)
+
+			lm.ServeHTTP(httptest.NewRecorder(), req)
+
+			assert.Equal(t, test.logged, logBuffer.Len() > 0)
+		})
+	}
+}
+
 func Test_LogMiddleware_Log_HealthRequestAreNotLogged(t *testing.T) {
 	tests := []struct {
 		name           string

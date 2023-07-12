@@ -68,7 +68,11 @@ func SetWithConfig(level string, config *LogConfig) error {
 
 // Access logs an access entry with call duration and status code
 func Access(r *http.Request, start time.Time, statusCode int) {
-	e := access(r, start, statusCode, nil)
+	access(logrus.InfoLevel, r, start, statusCode)
+}
+
+func access(level logrus.Level, r *http.Request, start time.Time, statusCode int) {
+	e := createAccessEntry(r, start, statusCode, nil)
 
 	var msg string
 	if len(r.URL.RawQuery) == 0 {
@@ -77,17 +81,19 @@ func Access(r *http.Request, start time.Time, statusCode int) {
 		msg = fmt.Sprintf("%v ->%v %v?%s", statusCode, r.Method, r.URL.Path, r.URL.RawQuery)
 	}
 
+	e.Log(accessLogLevelFor(level, r, statusCode), msg)
+}
+
+func accessLogLevelFor(level logrus.Level, r *http.Request, statusCode int) logrus.Level {
 	if statusCode >= 200 && statusCode <= 399 {
 		if isHealthRequest(r) {
-			e.Debug(msg)
-		} else {
-			e.Info(msg)
+			return logrus.DebugLevel
 		}
+		return level
 	} else if statusCode >= 400 && statusCode <= 499 {
-		e.Warn(msg)
-	} else {
-		e.Error(msg)
+		return logrus.WarnLevel
 	}
+	return logrus.ErrorLevel
 }
 
 func isHealthRequest(r *http.Request) bool {
@@ -96,16 +102,16 @@ func isHealthRequest(r *http.Request) bool {
 
 // AccessError logs an error while accessing
 func AccessError(r *http.Request, start time.Time, err error) {
-	e := access(r, start, 0, err)
+	e := createAccessEntry(r, start, 0, err)
 	e.Errorf("ERROR ->%v %v", r.Method, r.URL.Path)
 }
 
 func AccessAborted(r *http.Request, start time.Time) {
-	e := access(r, start, 0, nil)
+	e := createAccessEntry(r, start, 0, nil)
 	e.Infof("ABORTED ->%v %v", r.Method, r.URL.Path)
 }
 
-func access(r *http.Request, start time.Time, statusCode int, err error) *Entry {
+func createAccessEntry(r *http.Request, start time.Time, statusCode int, err error) *Entry {
 	url := r.URL.Path
 	if r.URL.RawQuery != "" {
 		url += "?" + r.URL.RawQuery
