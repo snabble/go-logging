@@ -251,6 +251,24 @@ func Test_Logger_LifecycleStart(t *testing.T) {
 	assert.Equal(t, "b666", data["build_number"])
 }
 
+func Test_Logger_LifecycleStarted(t *testing.T) {
+	b := bytes.NewBuffer(nil)
+	Log.Out = b
+
+	// and an Environment Variable with the Build Number is set
+	t.Setenv("BUILD_NUMBER", "b666")
+
+	// when a LifecycleStarted is logged
+	LifecycleStarted("my-app")
+
+	// then: it is logged
+	data := mapFromBuffer(b)
+	assert.Equal(t, "info", data["level"])
+	assert.Equal(t, "lifecycle", data["type"])
+	assert.Equal(t, "started", data["event"])
+	assert.Equal(t, "b666", data["build_number"])
+}
+
 func Test_Logger_LifecycleStop_ByInterrupt(t *testing.T) {
 	b := bytes.NewBuffer(nil)
 	Log.Out = b

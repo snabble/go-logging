@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+
 	"github.com/snabble/go-logging/v2/tracex"
 )
 
@@ -267,6 +268,19 @@ func LifecycleStart(appName string, args interface{}) {
 	}
 
 	Log.WithFields(fields).Infof("starting application: %v", appName)
+}
+
+// LifecycleStarted logs that an application has started.
+func LifecycleStarted(appName string) {
+	fields := logrus.Fields{}
+	fields["type"] = "lifecycle"
+	fields["event"] = "started"
+	for _, env := range LifecycleEnvVars {
+		if os.Getenv(env) != "" {
+			fields[strings.ToLower(env)] = os.Getenv(env)
+		}
+	}
+	Log.WithFields(fields).Infof("started application: %v", appName)
 }
 
 // LifecycleStop logs the request to stop an application
