@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+
 	"github.com/snabble/go-logging/v2/tracex"
 )
 
@@ -90,7 +91,7 @@ func accessLogLevelFor(level logrus.Level, r *http.Request, statusCode int) logr
 			return logrus.DebugLevel
 		}
 		return level
-	} else if statusCode >= 400 && statusCode <= 499 {
+	} else if (statusCode >= 400 && statusCode <= 499) || statusCode == 503 {
 		return logrus.WarnLevel
 	}
 	return logrus.ErrorLevel
