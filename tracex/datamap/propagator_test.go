@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"go.opentelemetry.io/otel/trace"
+	"go.opentelemetry.io/otel/trace/noop"
 )
 
 const (
@@ -70,5 +71,5 @@ func propagator() *Propagator {
 }
 
 func traceProvider() trace.TracerProvider {
-	return trace.NewNoopTracerProvider()
+	return noop.NewTracerProvider()
 }

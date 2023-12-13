@@ -11,7 +11,7 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 	semconv "go.opentelemetry.io/otel/semconv/v1.21.0"
-	"go.opentelemetry.io/otel/trace"
+	"go.opentelemetry.io/otel/trace/noop"
 )
 
 type TraceProvider struct {
@@ -37,7 +37,7 @@ func NewTraceProvider(appResource *resource.Resource, batcher sdktrace.SpanExpor
 func (p *TraceProvider) Shutdown(ctx context.Context) error {
 	err := p.tp.Shutdown(ctx)
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator())
-	otel.SetTracerProvider(trace.NewNoopTracerProvider())
+	otel.SetTracerProvider(noop.NewTracerProvider())
 	return err
 }
 
