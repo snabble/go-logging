@@ -1,6 +1,6 @@
 language: go
 go:
-- 1.19.x
+- 1.21.x
 before_install:
 - go install honnef.co/go/tools/cmd/staticcheck@latest
 script:
