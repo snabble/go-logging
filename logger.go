@@ -74,7 +74,7 @@ func (logger *Logger) WithCheckout(checkoutID string) *Entry {
 }
 
 func (logger *Logger) WithCheckoutDevice(checkoutDeviceID string) *Entry {
-	return NewEntry(logger).WithField(CheckoutField, checkoutDeviceID)
+	return NewEntry(logger).WithField(CheckoutDeviceField, checkoutDeviceID)
 }
 
 func (logger *Logger) WithOrder(order string) *Entry {
