@@ -67,8 +67,11 @@ func buildSkipCache(cfg LogMiddlewareConfig) ([]*regexp.Regexp, error) {
 func (mw *LogMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 
+	lrw := &logResponseWriter{ResponseWriter: w}
+
 	defer func() {
 		if rec := recover(); rec != nil {
+			lrw.WriteHeader(http.StatusInternalServerError)
 			// See: https://pkg.go.dev/net/http#ErrAbortHandler
 			if recErr, ok := rec.(error); ok && errors.Is(recErr, http.ErrAbortHandler) {
 				AccessAborted(r, start)
@@ -78,7 +81,6 @@ func (mw *LogMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
-	lrw := &logResponseWriter{ResponseWriter: w}
 	mw.Next.ServeHTTP(lrw, r)
 
 	level := logrus.InfoLevel

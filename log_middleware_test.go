@@ -79,8 +79,11 @@ func Test_LogMiddleware_Panic(t *testing.T) {
 	}))
 
 	r, _ := http.NewRequest(http.MethodGet, "http://www.example.org/foo", nil)
+	resp := httptest.NewRecorder()
 
-	lm.ServeHTTP(httptest.NewRecorder(), r)
+	lm.ServeHTTP(resp, r)
+
+	assert.Equal(t, http.StatusInternalServerError, resp.Result().StatusCode)
 
 	data := logRecordFromBuffer(b)
 
@@ -101,8 +104,11 @@ func Test_LogMiddleware_Panic_ErrAbortHandler(t *testing.T) {
 	}))
 
 	r, _ := http.NewRequest(http.MethodGet, "http://www.example.org/foo", nil)
+	resp := httptest.NewRecorder()
 
-	lm.ServeHTTP(httptest.NewRecorder(), r)
+	lm.ServeHTTP(resp, r)
+
+	assert.Equal(t, http.StatusInternalServerError, resp.Result().StatusCode)
 
 	data := logRecordFromBuffer(b)
 
