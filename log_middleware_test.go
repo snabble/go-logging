@@ -91,6 +91,7 @@ func Test_LogMiddleware_Panic(t *testing.T) {
 	assert.Contains(t, data.Error, "some")
 	assert.Equal(t, data.Message, "ERROR ->GET /foo")
 	assert.Equal(t, data.Level, "error")
+	assert.NotZero(t, data.Stack)
 }
 
 func Test_LogMiddleware_Panic_ErrAbortHandler(t *testing.T) {

@@ -101,8 +101,13 @@ func isHealthRequest(r *http.Request) bool {
 }
 
 // AccessError logs an error while accessing
-func AccessError(r *http.Request, start time.Time, err error) {
+func AccessError(r *http.Request, start time.Time, err error, stack []byte) {
 	e := createAccessEntry(r, start, 0, err)
+
+	if stack != nil {
+		e = e.WithField("stack", string(stack))
+	}
+
 	e.Errorf("ERROR ->%v %v", r.Method, r.URL.Path)
 }
 

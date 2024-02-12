@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"regexp"
 	"runtime"
+	"runtime/debug"
 	"strings"
 	"time"
 
@@ -77,7 +78,7 @@ func (mw *LogMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				AccessAborted(r, start)
 				return
 			}
-			AccessError(r, start, fmt.Errorf("PANIC (%v): %v", identifyLogOrigin(), rec))
+			AccessError(r, start, fmt.Errorf("PANIC (%v): %v", identifyLogOrigin(), rec), debug.Stack())
 		}
 	}()
 
