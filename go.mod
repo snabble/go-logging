@@ -1,8 +1,8 @@
 module github.com/snabble/go-logging/v2
 
-go 1.21
+go 1.22
 
-toolchain go1.21.1
+toolchain go1.22.0
 
 require (
 	github.com/sirupsen/logrus v1.9.3

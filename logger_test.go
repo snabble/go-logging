@@ -32,6 +32,7 @@ type logRecord struct {
 	UserAgent      string            `json:"User_Agent"`
 	SpanID         string            `json:"span"`
 	TraceID        string            `json:"trace"`
+	Stack          string            `json:"stack"`
 }
 
 func Test_Logger_Set(t *testing.T) {
@@ -215,12 +216,13 @@ func Test_Logger_Access_ErrorCases(t *testing.T) {
 
 	// when an error is logged
 	b.Reset()
-	AccessError(r, time.Now(), errors.New("oops"))
+	AccessError(r, time.Now(), errors.New("oops"), []byte("__stacktrace__"))
 	// then: all fields match
 	data = logRecordFromBuffer(b)
 	a.Equal("error", data.Level)
 	a.Equal("oops", data.Error)
 	a.Equal("ERROR ->GET /foo", data.Message)
+	a.Equal("__stacktrace__", data.Stack)
 }
 
 func Test_Logger_LifecycleStart(t *testing.T) {
