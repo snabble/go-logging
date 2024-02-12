@@ -89,8 +89,8 @@ func Test_LogMiddleware_Panic(t *testing.T) {
 
 	assert.Contains(t, data.Error, "Test_LogMiddleware_Panic.func1")
 	assert.Contains(t, data.Error, "some")
-	assert.Equal(t, data.Message, "ERROR ->GET /foo")
-	assert.Equal(t, data.Level, "error")
+	assert.Equal(t, "ERROR ->GET /foo", data.Message)
+	assert.Equal(t, "error", data.Level)
 	assert.NotZero(t, data.Stack)
 }
 
@@ -113,8 +113,8 @@ func Test_LogMiddleware_Panic_ErrAbortHandler(t *testing.T) {
 
 	data := logRecordFromBuffer(b)
 
-	assert.Equal(t, data.Message, "ABORTED ->GET /foo")
-	assert.Equal(t, data.Level, "info")
+	assert.Equal(t, "ABORTED ->GET /foo", data.Message)
+	assert.Equal(t, "info", data.Level)
 }
 
 func Test_LogMiddleware_Log_implicit200(t *testing.T) {
@@ -136,7 +136,7 @@ func Test_LogMiddleware_Log_implicit200(t *testing.T) {
 	data := logRecordFromBuffer(b)
 	a.Equal("", data.Error)
 	a.Equal("200 ->GET /foo", data.Message)
-	a.Equal(200, data.ResponseStatus)
+	a.Equal(http.StatusOK, data.ResponseStatus)
 	a.Equal("info", data.Level)
 }
 
@@ -226,7 +226,7 @@ func Test_LogMiddleware_Log_404(t *testing.T) {
 	data := logRecordFromBuffer(b)
 	a.Equal("", data.Error)
 	a.Equal("404 ->GET /foo", data.Message)
-	a.Equal(404, data.ResponseStatus)
+	a.Equal(http.StatusNotFound, data.ResponseStatus)
 	a.Equal("warning", data.Level)
 }
 
