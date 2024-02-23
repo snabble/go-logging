@@ -16,8 +16,15 @@ const (
 	OrderField          = "order"
 	CheckoutDeviceField = "checkoutDevice"
 	DurationField       = "duration"
+	FlakyField          = "flaky"
 	TypeField           = "type"
+
 	TypeDeprecation = "deprecation"
+	TypeCall        = "call"
+	TypeAccess      = "access"
+	TypeApplication = "application"
+	TypeLifecycle   = "lifecycle"
+	TypeCacheinfo   = "cacheinfo"
 )
 
 type Identifiable interface {
