@@ -16,6 +16,15 @@ const (
 	OrderField          = "order"
 	CheckoutDeviceField = "checkoutDevice"
 	DurationField       = "duration"
+	FlakyField          = "flaky"
+	TypeField           = "type"
+
+	TypeDeprecation = "deprecation"
+	TypeCall        = "call"
+	TypeAccess      = "access"
+	TypeApplication = "application"
+	TypeLifecycle   = "lifecycle"
+	TypeCacheinfo   = "cacheinfo"
 )
 
 type Identifiable interface {
@@ -144,6 +153,13 @@ func (entry *Entry) WithCheckoutDevice(checkoutDeviceID string) *Entry {
 
 func (entry *Entry) WithOrder(orderID string) *Entry {
 	return entry.WithField(OrderField, orderID)
+}
+
+// Deprecation marks the log entry with type "deprecation". This is used for log entries, that are logged during a
+// feature change. Logs with "deprecation" types should not be considered as critical and should only occur temporarily
+// during the transition.
+func (entry *Entry) Deprecation() *Entry {
+	return entry.WithField(TypeField, TypeDeprecation)
 }
 
 func wrapEntry(logrusEntry *logrus.Entry) *Entry {

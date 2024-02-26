@@ -122,7 +122,7 @@ func createAccessEntry(r *http.Request, start time.Time, statusCode int, err err
 		url += "?" + r.URL.RawQuery
 	}
 	fields := logrus.Fields{
-		"type":       "access",
+		TypeField:    TypeAccess,
 		"@timestamp": start,
 		"remote_ip":  getRemoteIP(r),
 		"host":       r.Host,
@@ -163,7 +163,7 @@ func Call(r *http.Request, resp *http.Response, start time.Time, err error) {
 // FlakyCall logs the result of an outgoing call and marks it as flaky
 func FlakyCall(r *http.Request, resp *http.Response, start time.Time, err error) {
 	fields := fieldsForCall(r, resp, start, err)
-	fields["flaky"] = true
+	fields[FlakyField] = true
 	logCall(fields, r, resp, err)
 }
 
@@ -173,7 +173,7 @@ func fieldsForCall(r *http.Request, resp *http.Response, start time.Time, err er
 		url += "?" + r.URL.RawQuery
 	}
 	fields := logrus.Fields{
-		"type":       "call",
+		TypeField:    TypeCall,
 		"@timestamp": start,
 		"host":       r.Host,
 		"url":        url,
@@ -233,9 +233,9 @@ func Cacheinfo(url string, hit bool) {
 	}
 	Log.WithFields(
 		logrus.Fields{
-			"type": "cacheinfo",
-			"url":  url,
-			"hit":  hit,
+			TypeField: TypeCacheinfo,
+			"url":     url,
+			"hit":     hit,
 		}).
 		Debug(msg)
 }
@@ -243,7 +243,7 @@ func Cacheinfo(url string, hit bool) {
 // Application Return a log entry for application logs.
 func Application(h http.Header) *Entry {
 	fields := logrus.Fields{
-		"type": "application",
+		TypeField: TypeApplication,
 	}
 	return Log.WithFields(fields)
 }
@@ -263,7 +263,7 @@ func LifecycleStart(appName string, args interface{}) {
 		}
 	}
 
-	fields["type"] = "lifecycle"
+	fields[TypeField] = TypeLifecycle
 	fields["event"] = "start"
 	for _, env := range LifecycleEnvVars {
 		if os.Getenv(env) != "" {
@@ -277,8 +277,8 @@ func LifecycleStart(appName string, args interface{}) {
 // LifecycleStop logs the request to stop an application
 func LifecycleStop(appName string, signal os.Signal, err error) {
 	fields := logrus.Fields{
-		"type":  "lifecycle",
-		"event": "stop",
+		TypeField: TypeLifecycle,
+		"event":   "stop",
 	}
 	if signal != nil {
 		fields["signal"] = signal.String()
@@ -310,8 +310,8 @@ func LifecycleStopped(appName string, err error) {
 
 func logApplicationLifecycleEvent(appName string, eventName string, err error) {
 	fields := logrus.Fields{
-		"type":  "lifecycle",
-		"event": eventName,
+		TypeField: TypeLifecycle,
+		"event":   eventName,
 	}
 
 	if os.Getenv("BUILD_NUMBER") != "" {
@@ -330,8 +330,8 @@ func logApplicationLifecycleEvent(appName string, eventName string, err error) {
 // ServerClosed logs the closing of a server
 func ServerClosed(appName string) {
 	fields := logrus.Fields{
-		"type":  "application",
-		"event": "stop",
+		TypeField: TypeApplication,
+		"event":   "stop",
 	}
 
 	if os.Getenv("BUILD_NUMBER") != "" {
