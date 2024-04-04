@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"testing"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -19,7 +20,11 @@ var AccessLogCookiesBlacklist = []string{}
 var LifecycleEnvVars = []string{"BUILD_NUMBER", "BUILD_HASH", "BUILD_DATE"}
 
 func init() {
-	_ = Set("info", false)
+	if testing.Testing() {
+		_ = Set("info", true)
+	} else {
+		_ = Set("info", false)
+	}
 }
 
 var DefaultLogConfig = LogConfig{
