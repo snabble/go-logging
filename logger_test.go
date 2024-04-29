@@ -71,10 +71,12 @@ func Test_Logger_WithError(t *testing.T) {
 	a.Regexp(`^time.* level\=error msg\=oops error\="found an error: an error occurred"`, b.String())
 }
 
-type identifiable struct{}
+type identifiable struct {
+	value string
+}
 
 func (i identifiable) LogIdentity() map[string]any {
-	return map[string]any{"field": "value"}
+	return map[string]any{"field": i.value}
 }
 
 func Test_Logger_With(t *testing.T) {
@@ -84,10 +86,24 @@ func Test_Logger_With(t *testing.T) {
 	logrusLogger.Out = &out
 	logger := Logger{Logger: logrusLogger}
 
-	i := identifiable{}
+	i := identifiable{value: "__value__"}
 	logger.With(i).Info("message")
 
-	a.Contains(out.String(), "field=value")
+	a.Contains(out.String(), "field=__value__")
+}
+
+func Test_Logger_With_MergesMultipleObjects(t *testing.T) {
+	a := assert.New(t)
+	var out strings.Builder
+	logrusLogger := logrus.New()
+	logrusLogger.Out = &out
+	logger := Logger{Logger: logrusLogger}
+
+	logger.
+		With(identifiable{value: "__overwritten__"}, identifiable{value: "__value__"}).
+		Info("message")
+
+	a.Contains(out.String(), "field=__value__")
 }
 
 func Test_Logger_Call(t *testing.T) {
