@@ -162,14 +162,20 @@ func createAccessEntry(r *http.Request, start time.Time, statusCode int, err err
 // Call logs the result of an outgoing call
 func Call(r *http.Request, resp *http.Response, start time.Time, err error) {
 	fields := fieldsForCall(r, resp, start, err)
-	logCall(fields, r, resp, err)
+	logCall(fields, r, resp, err, logrus.ErrorLevel)
+}
+
+// Call logs the result of an outgoing call. Same as Call but never logs errors on warning level instead on error level.
+func CallWarn(r *http.Request, resp *http.Response, start time.Time, err error) {
+	fields := fieldsForCall(r, resp, start, err)
+	logCall(fields, r, resp, err, logrus.WarnLevel)
 }
 
 // FlakyCall logs the result of an outgoing call and marks it as flaky
 func FlakyCall(r *http.Request, resp *http.Response, start time.Time, err error) {
 	fields := fieldsForCall(r, resp, start, err)
 	fields[FlakyField] = true
-	logCall(fields, r, resp, err)
+	logCall(fields, r, resp, err, logrus.ErrorLevel)
 }
 
 func fieldsForCall(r *http.Request, resp *http.Response, start time.Time, err error) logrus.Fields {
@@ -199,7 +205,7 @@ func fieldsForCall(r *http.Request, resp *http.Response, start time.Time, err er
 	return fields
 }
 
-func logCall(fields logrus.Fields, r *http.Request, resp *http.Response, err error) {
+func logCall(fields logrus.Fields, r *http.Request, resp *http.Response, err error, levelForErrors logrus.Level) {
 	entry := Log.WithContext(r.Context()).WithFields(fields)
 
 	if ctxErr := r.Context().Err(); ctxErr != nil {
@@ -208,7 +214,7 @@ func logCall(fields logrus.Fields, r *http.Request, resp *http.Response, err err
 	}
 
 	if err != nil {
-		entry.Error(err)
+		entry.Log(levelForErrors, err)
 		return
 	}
 
@@ -220,7 +226,7 @@ func logCall(fields logrus.Fields, r *http.Request, resp *http.Response, err err
 		} else if resp.StatusCode >= 400 && resp.StatusCode <= 499 {
 			entry.Warn(msg)
 		} else {
-			entry.Error(msg)
+			entry.Log(levelForErrors, msg)
 		}
 		return
 	}
