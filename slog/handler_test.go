@@ -1,4 +1,4 @@
-package sloglogrus
+package slog
 
 import (
 	"bytes"
@@ -20,7 +20,7 @@ func Test_Slog_Set(t *testing.T) {
 	b := bytes.NewBuffer(nil)
 	logging.Log.Out = b
 
-	slog := NewSlog()
+	slog := New()
 
 	// when: I log something
 	slog.Info("should be ignored ..")
@@ -40,7 +40,7 @@ func Test_Slog_WithError(t *testing.T) {
 	b := bytes.NewBuffer(nil)
 	logging.Log.Out = b
 
-	slog := NewSlog()
+	slog := New()
 
 	err := func() error {
 		return fmt.Errorf("found an error: %w", errors.New("an error occurred"))

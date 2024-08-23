@@ -1,4 +1,4 @@
-package sloglogrus
+package slog
 
 import (
 	"context"
@@ -9,38 +9,37 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var logLevels = map[slog.Level]logrus.Level{
+var logLevelsFromSlog = map[slog.Level]logrus.Level{
 	slog.LevelDebug: logrus.DebugLevel,
 	slog.LevelInfo:  logrus.InfoLevel,
 	slog.LevelWarn:  logrus.WarnLevel,
 	slog.LevelError: logrus.ErrorLevel,
 }
 
-var logLevelsReversed = map[logrus.Level]slog.Level{
+var logLevelsToSlog = map[logrus.Level]slog.Level{
 	logrus.DebugLevel: slog.LevelDebug,
 	logrus.InfoLevel:  slog.LevelInfo,
 	logrus.WarnLevel:  slog.LevelWarn,
 	logrus.ErrorLevel: slog.LevelError,
 }
 
-type LogOption struct {
+type Option struct {
 	Level           slog.Level
 	Logger          *logging.Logger
-	Converter       converter
 	AttrFromContext []func(ctx context.Context) []slog.Attr
 	AddSource       bool
 	ReplaceAttr     func(groups []string, a slog.Attr) slog.Attr
 }
 
-func NewSlog() *slog.Logger {
+func New() *slog.Logger {
 	return slog.New(
-		LogOption{
-			Level:  logLevelsReversed[logging.Log.GetLevel()],
+		Option{
+			Level:  logLevelsToSlog[logging.Log.GetLevel()],
 			Logger: logging.Log,
 		}.newLogrusHandler())
 }
 
-func (o LogOption) newLogrusHandler() slog.Handler {
+func (o Option) newLogrusHandler() slog.Handler {
 	if o.AttrFromContext == nil {
 		o.AttrFromContext = []func(ctx context.Context) []slog.Attr{}
 	}
@@ -53,7 +52,7 @@ func (o LogOption) newLogrusHandler() slog.Handler {
 }
 
 type LogrusHandler struct {
-	option LogOption
+	option Option
 	attrs  []slog.Attr
 	groups []string
 }
@@ -63,14 +62,9 @@ func (h *LogrusHandler) Enabled(_ context.Context, level slog.Level) bool {
 }
 
 func (h *LogrusHandler) Handle(ctx context.Context, record slog.Record) error {
-	converter := defaultConverter
-	if h.option.Converter != nil {
-		converter = h.option.Converter
-	}
-
-	level := logLevels[record.Level]
+	level := logLevelsFromSlog[record.Level]
 	fromContext := contextExtractor(ctx, h.option.AttrFromContext)
-	args := converter(h.option.AddSource, h.option.ReplaceAttr, append(h.attrs, fromContext...), h.groups, &record)
+	args := convert(h.option.AddSource, h.option.ReplaceAttr, append(h.attrs, fromContext...), h.groups, &record)
 
 	logging.NewEntry(h.option.Logger).
 		WithContext(ctx).
