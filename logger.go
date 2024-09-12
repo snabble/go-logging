@@ -14,6 +14,7 @@ const (
 	ShopField           = "shop"
 	CheckoutField       = "checkout"
 	OrderField          = "order"
+	TransactionField    = "transaction"
 	CheckoutDeviceField = "checkoutDevice"
 	DurationField       = "duration"
 	FlakyField          = "flaky"
@@ -90,6 +91,10 @@ func (logger *Logger) WithOrder(order string) *Entry {
 	return NewEntry(logger).WithField(OrderField, order)
 }
 
+func (logger *Logger) WithTransaction(txn string) *Entry {
+	return NewEntry(logger).WithField(TransactionField, txn)
+}
+
 type Entry struct {
 	*logrus.Entry
 }
@@ -162,6 +167,10 @@ func (entry *Entry) WithCheckoutDevice(checkoutDeviceID string) *Entry {
 
 func (entry *Entry) WithOrder(orderID string) *Entry {
 	return entry.WithField(OrderField, orderID)
+}
+
+func (entry *Entry) WithTransaction(txnID string) *Entry {
+	return entry.WithField(TransactionField, txnID)
 }
 
 // Deprecation marks the log entry with type "deprecation". This is used for log entries, that are logged during a
