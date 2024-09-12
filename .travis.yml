@@ -1,6 +1,7 @@
 language: go
 go:
   - 1.22.x
+dist: jammy
 before_install:
   - go install honnef.co/go/tools/cmd/staticcheck@latest
 script:
