@@ -159,13 +159,13 @@ func createAccessEntry(r *http.Request, start time.Time, statusCode int, err err
 	return Log.WithContext(r.Context()).WithFields(fields)
 }
 
-// Call logs the result of an outgoing call
+// Call logs the result of an outgoing call. This logs on error level if the call failed, if that is not wanted use CallWarn instead.
 func Call(r *http.Request, resp *http.Response, start time.Time, err error) {
 	fields := fieldsForCall(r, resp, start, err)
 	logCall(fields, r, resp, err, logrus.ErrorLevel)
 }
 
-// Call logs the result of an outgoing call. Same as Call but never logs errors on warning level instead on error level.
+// Call logs the result of an outgoing call. Same as Call but logs failed calls on warning level instead of error level.
 func CallWarn(r *http.Request, resp *http.Response, start time.Time, err error) {
 	fields := fieldsForCall(r, resp, start, err)
 	logCall(fields, r, resp, err, logrus.WarnLevel)
