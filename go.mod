@@ -4,7 +4,7 @@ go 1.22
 toolchain go1.22.5
 
 require (
-	github.com/samber/lo v1.49.0
+	github.com/samber/lo v1.49.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.10.0
 	github.com/uptrace/opentelemetry-go-extra/otellogrus v0.3.2
