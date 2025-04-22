@@ -106,6 +106,12 @@ func Test_Logger_With_MergesMultipleObjects(t *testing.T) {
 	a.Contains(out.String(), "field=__value__")
 }
 
+func Test_Logger_With_HandleNil(t *testing.T) {
+	logger := Logger{Logger: logrus.New()}
+
+	logger.With(nil).Info("message")
+}
+
 func Test_Logger_Call(t *testing.T) {
 	a := assert.New(t)
 
