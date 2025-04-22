@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
 )
 
@@ -128,6 +129,9 @@ func (entry *Entry) With(os ...Identifiable) *Entry {
 	merged := map[string]any{}
 
 	for _, o := range os {
+		if lo.IsEmpty(o) {
+			continue
+		}
 		fields := o.LogIdentity()
 		for k, v := range fields {
 			merged[k] = v
