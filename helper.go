@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+
 	"github.com/snabble/go-logging/v2/tracex"
 )
 
@@ -33,13 +34,21 @@ var DefaultLogConfig = LogConfig{
 }
 
 type LogConfig struct {
-	EnableTraces      bool
-	EnableTextLogging bool
+	EnableTraces       bool
+	EnableTextLogging  bool
+	googleCloudLogging bool
 }
 
 // Set creates a new Logger with the matching specification
 func Set(level string, textLogging bool) error {
 	config := &LogConfig{EnableTraces: true, EnableTextLogging: textLogging}
+	return SetWithConfig(level, config)
+}
+
+// SetGoogle configures the Logger to use GoogleCloud compatible fields in JSON format
+// https://cloud.google.com/logging/docs/structured-logging#structured_logging_special_fields
+func SetGoogle(level string) error {
+	config := &LogConfig{EnableTraces: true, googleCloudLogging: true}
 	return SetWithConfig(level, config)
 }
 
@@ -58,6 +67,15 @@ func SetWithConfig(level string, config *LogConfig) error {
 	logger := logrus.New()
 	if config.EnableTextLogging {
 		logger.Formatter = &logrus.TextFormatter{DisableColors: true}
+	} else if config.googleCloudLogging {
+		logger.Formatter = &logrus.JSONFormatter{
+			FieldMap: logrus.FieldMap{
+				logrus.FieldKeyTime:  "timestamp",
+				logrus.FieldKeyLevel: "severity",
+				logrus.FieldKeyMsg:   "message",
+			},
+			TimestampFormat: time.RFC3339Nano,
+		}
 	} else {
 		logger.Formatter = &LogstashFormatter{TimestampFormat: time.RFC3339Nano}
 	}
