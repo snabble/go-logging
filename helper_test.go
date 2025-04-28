@@ -1,14 +1,17 @@
 package logging
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"net/http"
 	"testing"
 	"time"
 
-	"github.com/snabble/go-logging/v2/tracex"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/snabble/go-logging/v2/tracex"
 )
 
 func Test_LifecycleStart_AcceptsNil(t *testing.T) {
@@ -33,4 +36,52 @@ func Test_Call_UsesTrace(t *testing.T) {
 	assert.NotContains(t, capture.String(), "00000000000000000000000000000000")
 	assert.Contains(t, capture.String(), "trace")
 	assert.Contains(t, capture.String(), "span")
+}
+
+func Test_SetGoogle(t *testing.T) {
+	require.NoError(t, SetGoogle("debug"))
+	defer SetWithConfig("info", &DefaultLogConfig) // Reset to default
+
+	tt := []struct {
+		level   string
+		message string
+		logFn   func()
+	}{
+		{
+			level:   "debug",
+			message: "__debug__",
+			logFn:   func() { Log.Debug("__debug__") },
+		},
+		{
+			level:   "info",
+			message: "__info__",
+			logFn:   func() { Log.Info("__info__") },
+		},
+		{
+			level:   "warning",
+			message: "__warn__",
+			logFn:   func() { Log.Warn("__warn__") },
+		},
+		{
+			level:   "error",
+			message: "__error__",
+			logFn:   func() { Log.Error("__error__") },
+		},
+	}
+
+	for _, tc := range tt {
+		t.Run(tc.level, func(t *testing.T) {
+			b := bytes.NewBuffer(nil)
+			Log.Out = b
+
+			tc.logFn()
+
+			result := map[string]string{}
+			require.NoError(t, json.Unmarshal(b.Bytes(), &result))
+
+			assert.Equal(t, tc.message, result["message"])
+			assert.Equal(t, tc.level, result["severity"])
+			assert.NotEmpty(t, result["timestamp"])
+		})
+	}
 }
