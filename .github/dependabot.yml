@@ -7,8 +7,6 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
-    reviewers:
-      - "snabble/backend"
     groups:
       otel:
         patterns:
