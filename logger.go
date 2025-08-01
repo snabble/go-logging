@@ -20,6 +20,8 @@ const (
 	DurationField       = "duration"
 	FlakyField          = "flaky"
 	TypeField           = "type"
+	ResponseField       = "response"
+	PayloadField        = "payload"
 
 	TypeDeprecation = "deprecation"
 	TypeCall        = "call"
