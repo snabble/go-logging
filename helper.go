@@ -116,14 +116,10 @@ func accessLogLevelFor(level logrus.Level, r *http.Request, statusCode int) logr
 		}
 		return level
 	}
-	if statusCode >= 400 && statusCode <= 499 {
-		return logrus.WarnLevel
+	if statusCode == http.StatusInternalServerError {
+		return logrus.ErrorLevel
 	}
-	if statusCode == http.StatusBadGateway {
-		return logrus.WarnLevel
-	}
-
-	return logrus.ErrorLevel
+	return logrus.WarnLevel
 }
 
 func isHealthRequest(r *http.Request) bool {
