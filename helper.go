@@ -115,9 +115,14 @@ func accessLogLevelFor(level logrus.Level, r *http.Request, statusCode int) logr
 			return logrus.DebugLevel
 		}
 		return level
-	} else if statusCode >= 400 && statusCode <= 499 {
+	}
+	if statusCode >= 400 && statusCode <= 499 {
 		return logrus.WarnLevel
 	}
+	if statusCode == http.StatusBadGateway {
+		return logrus.WarnLevel
+	}
+
 	return logrus.ErrorLevel
 }
 
