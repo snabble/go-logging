@@ -21,6 +21,7 @@ const (
 	FlakyField    = "flaky"
 	ResponseField = "response"
 	PayloadField  = "payload"
+	CountField    = "count"
 
 	ScopeField = "scope"
 	TopicField = "topic"
