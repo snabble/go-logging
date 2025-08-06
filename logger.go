@@ -10,19 +10,23 @@ import (
 )
 
 const (
-	ScopeField          = "scope"
 	ProjectField        = "project"
 	ShopField           = "shop"
 	CheckoutField       = "checkout"
 	OrderField          = "order"
 	TransactionField    = "transaction"
 	CheckoutDeviceField = "checkoutDevice"
-	DurationField       = "duration"
-	FlakyField          = "flaky"
-	TypeField           = "type"
-	ResponseField       = "response"
-	PayloadField        = "payload"
 
+	DurationField = "duration"
+	FlakyField    = "flaky"
+	ResponseField = "response"
+	PayloadField  = "payload"
+	CountField    = "count"
+
+	ScopeField = "scope"
+	TopicField = "topic"
+
+	TypeField       = "type"
 	TypeDeprecation = "deprecation"
 	TypeCall        = "call"
 	TypeAccess      = "access"
