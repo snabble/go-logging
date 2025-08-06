@@ -2,6 +2,7 @@ package slog
 
 import (
 	"context"
+
 	"github.com/snabble/go-logging/v2"
 
 	"log/slog"
@@ -35,6 +36,14 @@ func New() *slog.Logger {
 	return slog.New(
 		Option{
 			Level:  logLevelsToSlog[logging.Log.GetLevel()],
+			Logger: logging.Log,
+		}.newLogrusHandler())
+}
+
+func NewWithLevel(level logrus.Level) *slog.Logger {
+	return slog.New(
+		Option{
+			Level:  logLevelsToSlog[level],
 			Logger: logging.Log,
 		}.newLogrusHandler())
 }
