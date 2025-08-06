@@ -114,7 +114,7 @@ func accessLogLevelFor(level logrus.Level, r *http.Request, statusCode int) logr
 		// 100er codes are unexpected in the context of http handlers using this middleware
 		return logrus.ErrorLevel
 	}
-	if statusCode >= 200 && statusCode <= 399 {
+	if statusCode <= 399 {
 		if isHealthRequest(r) {
 			return logrus.DebugLevel
 		}
