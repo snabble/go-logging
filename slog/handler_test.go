@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"testing"
+
 	"github.com/sirupsen/logrus"
 	"github.com/snabble/go-logging/v2"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func Test_Slog_Set(t *testing.T) {
@@ -28,6 +29,23 @@ func Test_Slog_Set(t *testing.T) {
 
 	// then: only the error text is contained, and it is text formatted
 	a.Regexp(`^time.* level\=error msg\=oops foo\=bar.*`, b.String())
+}
+
+func Test_Slog_WithLevel(t *testing.T) {
+	logging.Set("error", true)
+	defer logging.Set("info", false)
+	logging.Log.Formatter.(*logrus.TextFormatter).DisableColors = true
+	b := bytes.NewBuffer(nil)
+	logging.Log.Out = b
+
+	slog := NewWithLevel(logrus.WarnLevel)
+
+	// when: I log something
+	slog.Info("should be ignored ..")
+	slog.With("foo", "bar").Error("oops")
+
+	// then: only the error text is contained, and it is text formatted
+	assert.Regexp(t, `^time.* level\=error msg\=oops foo\=bar.*`, b.String())
 }
 
 func Test_Slog_WithError(t *testing.T) {
