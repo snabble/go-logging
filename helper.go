@@ -68,10 +68,10 @@ func SetWithConfig(level string, config *LogConfig) error {
 	if config.EnableTextLogging {
 		logger.Formatter = &logrus.TextFormatter{DisableColors: true}
 	} else if config.googleCloudLogging {
-		logger.Formatter = &logrus.JSONFormatter{
-			FieldMap: logrus.FieldMap{
+		logger.Formatter = &LogstashFormatter{
+			FieldMap: map[string]string{
 				// https://cloud.google.com/logging/docs/agent/logging/configuration#special-fields
-				logrus.FieldKeyTime:  "timestamp",
+				"@timestamp":         "timestamp",
 				logrus.FieldKeyLevel: "severity",
 				logrus.FieldKeyMsg:   "message",
 				"trace":              "traceID", // Trace is special in GCE so we have to use another name.

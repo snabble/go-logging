@@ -21,6 +21,9 @@ type LogstashFormatter struct {
 
 	// TimestampFormat sets the format used for timestamps.
 	TimestampFormat string
+
+	// Allow field renaming
+	FieldMap map[string]string
 }
 
 func (f *LogstashFormatter) Format(entry *logrus.Entry) ([]byte, error) {
@@ -79,6 +82,13 @@ func (f *LogstashFormatter) FormatWithPrefix(entry *logrus.Entry, prefix string)
 	}
 
 	tracex.TraceAndSpan(entry.Context, fields)
+
+	for name, replacement := range f.FieldMap {
+		if value, ok := fields[name]; ok {
+			delete(fields, name)
+			fields[replacement] = value
+		}
+	}
 
 	serialized, err := json.Marshal(fields)
 	if err != nil {
