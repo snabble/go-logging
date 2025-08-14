@@ -15,7 +15,7 @@ import (
 // Copyright (c) 2016 Boaz Shuster
 
 func TestLogstashFormatter(t *testing.T) {
-	lf := LogstashFormatter{Type: "abc"}
+	lf := LogstashFormatter{Type: "abc", FieldMap: map[string]string{"field": "replacement"}}
 
 	fields := logrus.Fields{
 		"message": "def",
@@ -25,6 +25,7 @@ func TestLogstashFormatter(t *testing.T) {
 		"pi":      3.14,
 		"bool":    true,
 		"error":   &url.Error{Op: "Get", URL: "http://example.com", Err: fmt.Errorf("the error")},
+		"field":   "map",
 	}
 
 	entry := logrus.WithFields(fields)
@@ -52,6 +53,8 @@ func TestLogstashFormatter(t *testing.T) {
 		{"msg", "message"},
 		{"info", "level"},
 		{"Get \"http://example.com\": the error", "error"},
+		// Mapped field
+		{"map", "replacement"},
 		// substituted fields
 		{"def", "fields.message"},
 		{"ijk", "fields.level"},
