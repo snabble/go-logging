@@ -1,0 +1,25 @@
+name: Build and Test
+description: "Build and test it"
+
+inputs:
+  docker_password:
+    description: "Password to log into Dockerhub"
+    required: true
+  go_build_token:
+    description: "Token that allows to push to the Google Artifact Registry"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Clone build-helper
+      uses: actions/checkout@v4
+      with:
+        repository: snabble/build-helper
+        path: build-helper
+        token: "${{ inputs.go_build_token }}"
+
+    - name: build
+      uses: ./build-helper/.github/workflows/build-go-library
+      with:
+        gh-token: ${{inputs.go_build_token}}
