@@ -1,0 +1,29 @@
+name: Build and conditionally deploy
+on:
+  # enable button to trigger the run manually
+  workflow_dispatch:
+
+  # trigger on all pull request movement:
+  pull_request:
+
+  # trigger on pushes to default branch
+  push:
+    branches:
+      - main
+      - master
+
+# cancel previous build for new commit pushes in the same pr
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: build and test
+        uses: ./.github/actions/build
