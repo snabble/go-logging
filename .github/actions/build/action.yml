@@ -1,25 +1,22 @@
-name: Build and Test
-description: "Build and test it"
-
-inputs:
-  docker_password:
-    description: "Password to log into Dockerhub"
-    required: true
-  go_build_token:
-    description: "Token that allows to push to the Google Artifact Registry"
-    required: true
-
+name: build and test
 runs:
-  using: "composite"
+  using: composite
   steps:
-    - name: Clone build-helper
-      uses: actions/checkout@v4
+    - name: Setup go
+      uses: actions/setup-go@v6
       with:
-        repository: snabble/build-helper
-        path: build-helper
-        token: "${{ inputs.go_build_token }}"
+        go-version-file: ./go.mod
 
-    - name: build
-      uses: ./build-helper/.github/workflows/build-go-library
-      with:
-        gh-token: ${{inputs.go_build_token}}
+    - name: Run go vet
+      shell: bash
+      run: go vet ./...
+
+    - name: Run Staticcheck
+      shell: bash
+      run: |
+        go install honnef.co/go/tools/cmd/staticcheck@latest && \
+        staticcheck ./...
+
+    - name: Test the source
+      shell: bash
+      run: go test ./...
