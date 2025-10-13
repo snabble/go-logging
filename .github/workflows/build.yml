@@ -9,7 +9,6 @@ on:
   # trigger on pushes to default branch
   push:
     branches:
-      - main
       - master
 
 # cancel previous build for new commit pushes in the same pr
