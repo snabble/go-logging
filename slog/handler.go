@@ -26,18 +26,37 @@ var logLevelsToSlog = map[logrus.Level]slog.Level{
 
 type Option struct {
 	Level           slog.Level
+	MaxLevel        *logrus.Level
 	Logger          *logging.Logger
 	AttrFromContext []func(ctx context.Context) []slog.Attr
 	AddSource       bool
 	ReplaceAttr     func(groups []string, a slog.Attr) slog.Attr
 }
 
-func New() *slog.Logger {
-	return slog.New(
-		Option{
-			Level:  logLevelsToSlog[logging.Log.GetLevel()],
-			Logger: logging.Log,
-		}.newLogrusHandler())
+type OptionFunc func(*Option)
+
+func WithLevel(level logrus.Level) OptionFunc {
+	return func(o *Option) {
+		o.Level = logLevelsToSlog[level]
+	}
+}
+
+func WithMaxLevel(level logrus.Level) OptionFunc {
+	return func(o *Option) {
+		o.MaxLevel = &level
+	}
+}
+
+func New(opts ...OptionFunc) *slog.Logger {
+	o := Option{
+		Level:  logLevelsToSlog[logging.Log.GetLevel()],
+		Logger: logging.Log,
+	}
+	for _, fn := range opts {
+		fn(&o)
+	}
+
+	return slog.New(o.newLogrusHandler())
 }
 
 func NewWithLevel(level logrus.Level) *slog.Logger {
@@ -72,6 +91,10 @@ func (h *LogrusHandler) Enabled(_ context.Context, level slog.Level) bool {
 
 func (h *LogrusHandler) Handle(ctx context.Context, record slog.Record) error {
 	level := logLevelsFromSlog[record.Level]
+	if h.option.MaxLevel != nil && level > *h.option.MaxLevel {
+		level = *h.option.MaxLevel
+	}
+
 	fromContext := contextExtractor(ctx, h.option.AttrFromContext)
 	args := convert(h.option.AddSource, h.option.ReplaceAttr, append(h.attrs, fromContext...), h.groups, &record)
 
