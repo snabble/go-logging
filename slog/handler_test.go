@@ -67,3 +67,19 @@ func Test_Slog_WithError(t *testing.T) {
 
 	a.Regexp(`^time.* level\=error msg\=oops error\="found an error: an error occurred"`, b.String())
 }
+
+func Test_Slog_WithMaxLevel(t *testing.T) {
+	logging.Set("info", true)
+	defer logging.Set("info", false)
+	logging.Log.Formatter.(*logrus.TextFormatter).DisableColors = true
+	b := bytes.NewBuffer(nil)
+	logging.Log.Out = b
+
+	slog := New(WithMaxLevel(logrus.WarnLevel))
+
+	// when: I log something
+	slog.Error("should be a warning ...")
+
+	// then: only the error text is contained, and it is text formatted
+	assert.Regexp(t, `^time.* level\=warning msg\="should be a warning ..."`, b.String())
+}
