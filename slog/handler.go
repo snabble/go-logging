@@ -91,7 +91,7 @@ func (h *LogrusHandler) Enabled(_ context.Context, level slog.Level) bool {
 
 func (h *LogrusHandler) Handle(ctx context.Context, record slog.Record) error {
 	level := logLevelsFromSlog[record.Level]
-	if h.option.MaxLevel != nil && level > *h.option.MaxLevel {
+	if h.option.MaxLevel != nil && level < *h.option.MaxLevel {
 		level = *h.option.MaxLevel
 	}
 
