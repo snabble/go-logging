@@ -209,13 +209,14 @@ func fieldsForCall(r *http.Request, resp *http.Response, start time.Time, err er
 		url += "?" + r.URL.RawQuery
 	}
 	fields := logrus.Fields{
-		TypeField:    TypeCall,
-		"@timestamp": start,
-		"host":       r.Host,
-		"url":        url,
-		"full_url":   r.URL.String(),
-		"method":     r.Method,
-		"duration":   time.Since(start).Nanoseconds() / 1000000,
+		TypeField:        TypeCall,
+		"@timestamp":     start,
+		"host":           r.Host,
+		"url":            url,
+		"full_url":       r.URL.String(),
+		"method":         r.Method,
+		"duration":       time.Since(start).Nanoseconds() / 1000000,
+		"content_length": r.ContentLength,
 	}
 
 	if err != nil {
