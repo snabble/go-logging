@@ -3,7 +3,7 @@ module github.com/snabble/go-logging/v2
 go 1.25.3
 
 require (
-	github.com/samber/lo v1.52.0
+	github.com/samber/lo v1.53.0
 	github.com/sirupsen/logrus v1.9.4
 	github.com/stretchr/testify v1.11.1
 	github.com/uptrace/opentelemetry-go-extra/otellogrus v0.3.2
