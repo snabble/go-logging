@@ -31,12 +31,22 @@ func init() {
 var DefaultLogConfig = LogConfig{
 	EnableTraces:      true,
 	EnableTextLogging: false,
+	//LogLevelForServerError defaults to ErrorLevel if not set
 }
 
 type LogConfig struct {
-	EnableTraces       bool
-	EnableTextLogging  bool
-	googleCloudLogging bool
+	EnableTraces           bool
+	EnableTextLogging      bool
+	googleCloudLogging     bool
+	LogLevelForServerError *logrus.Level
+}
+
+func (c *LogConfig) getLogLevelForServerError() logrus.Level {
+	if c != nil && c.LogLevelForServerError != nil {
+		return *c.LogLevelForServerError
+	}
+
+	return logrus.ErrorLevel
 }
 
 // Set creates a new Logger with the matching specification
@@ -106,10 +116,10 @@ func access(level logrus.Level, r *http.Request, start time.Time, statusCode int
 		msg = fmt.Sprintf("%v ->%v %v?%s", statusCode, r.Method, r.URL.Path, r.URL.RawQuery)
 	}
 
-	e.Log(accessLogLevelFor(level, r, statusCode), msg)
+	e.Log(Log.accessLogLevelFor(level, r, statusCode), msg)
 }
 
-func accessLogLevelFor(level logrus.Level, r *http.Request, statusCode int) logrus.Level {
+func (l *Logger) accessLogLevelFor(level logrus.Level, r *http.Request, statusCode int) logrus.Level {
 	if statusCode < 200 {
 		// 100er codes are unexpected in the context of http handlers using this middleware
 		return logrus.ErrorLevel
@@ -121,7 +131,7 @@ func accessLogLevelFor(level logrus.Level, r *http.Request, statusCode int) logr
 		return level
 	}
 	if statusCode == http.StatusInternalServerError {
-		return logrus.ErrorLevel
+		return l.config.getLogLevelForServerError()
 	}
 	return logrus.WarnLevel
 }
