@@ -37,7 +37,7 @@ var DefaultLogConfig = LogConfig{
 type LogConfig struct {
 	EnableTraces           bool
 	EnableTextLogging      bool
-	googleCloudLogging     bool
+	GoogleCloudLogging     bool
 	LogLevelForServerError *logrus.Level
 }
 
@@ -58,7 +58,7 @@ func Set(level string, textLogging bool) error {
 // SetGoogle configures the Logger to use GoogleCloud compatible fields in JSON format
 // https://cloud.google.com/logging/docs/structured-logging#structured_logging_special_fields
 func SetGoogle(level string) error {
-	config := &LogConfig{EnableTraces: true, googleCloudLogging: true}
+	config := &LogConfig{EnableTraces: true, GoogleCloudLogging: true}
 	return SetWithConfig(level, config)
 }
 
@@ -77,7 +77,7 @@ func SetWithConfig(level string, config *LogConfig) error {
 	logger := logrus.New()
 	if config.EnableTextLogging {
 		logger.Formatter = &logrus.TextFormatter{DisableColors: true}
-	} else if config.googleCloudLogging {
+	} else if config.GoogleCloudLogging {
 		logger.Formatter = &LogstashFormatter{
 			FieldMap: map[string]string{
 				// https://cloud.google.com/logging/docs/agent/logging/configuration#special-fields
