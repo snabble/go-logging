@@ -169,19 +169,19 @@ func extractXErrorsPC(err error) []uintptr {
 // Frame represents a function call and it's metadata. Frames are associated
 // with a Stacktrace.
 type Frame struct {
-	Function    string                 `json:"function,omitempty"`
-	Symbol      string                 `json:"symbol,omitempty"`
-	Module      string                 `json:"module,omitempty"`
-	Package     string                 `json:"package,omitempty"`
-	Filename    string                 `json:"filename,omitempty"`
-	AbsPath     string                 `json:"abs_path,omitempty"`
-	Lineno      int                    `json:"lineno,omitempty"`
-	Colno       int                    `json:"colno,omitempty"`
-	PreContext  []string               `json:"pre_context,omitempty"`
-	ContextLine string                 `json:"context_line,omitempty"`
-	PostContext []string               `json:"post_context,omitempty"`
-	InApp       bool                   `json:"in_app,omitempty"`
-	Vars        map[string]interface{} `json:"vars,omitempty"`
+	Function    string         `json:"function,omitempty"`
+	Symbol      string         `json:"symbol,omitempty"`
+	Module      string         `json:"module,omitempty"`
+	Package     string         `json:"package,omitempty"`
+	Filename    string         `json:"filename,omitempty"`
+	AbsPath     string         `json:"abs_path,omitempty"`
+	Lineno      int            `json:"lineno,omitempty"`
+	Colno       int            `json:"colno,omitempty"`
+	PreContext  []string       `json:"pre_context,omitempty"`
+	ContextLine string         `json:"context_line,omitempty"`
+	PostContext []string       `json:"post_context,omitempty"`
+	InApp       bool           `json:"in_app,omitempty"`
+	Vars        map[string]any `json:"vars,omitempty"`
 }
 
 // NewFrame assembles a stacktrace frame out of runtime.Frame.
@@ -307,10 +307,7 @@ func packageName(name string) string {
 		return ""
 	}
 
-	pathend := strings.LastIndex(name, "/")
-	if pathend < 0 {
-		pathend = 0
-	}
+	pathend := max(strings.LastIndex(name, "/"), 0)
 
 	if i := strings.Index(name[pathend:], "."); i != -1 {
 		return name[:pathend+i]

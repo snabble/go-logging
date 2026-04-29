@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -183,7 +184,7 @@ func createAccessEntry(r *http.Request, start time.Time, statusCode int, err err
 
 	cookies := map[string]string{}
 	for _, c := range r.Cookies() {
-		if !contains(AccessLogCookiesBlacklist, c.Name) {
+		if !slices.Contains(AccessLogCookiesBlacklist, c.Name) {
 			cookies[c.Name] = c.Value
 		}
 	}
@@ -297,7 +298,7 @@ func Application(h http.Header) *Entry {
 
 // LifecycleStart logs the start of an application
 // with the configuration struct or map as parameter.
-func LifecycleStart(appName string, args interface{}) {
+func LifecycleStart(appName string, args any) {
 	fields := logrus.Fields{}
 
 	if args != nil {
@@ -401,13 +402,4 @@ func getRemoteIP(r *http.Request) string {
 		return r.RemoteAddr
 	}
 	return host
-}
-
-func contains(s []string, e string) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
 }
