@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -37,7 +38,7 @@ var DefaultLogConfig = LogConfig{
 type LogConfig struct {
 	EnableTraces           bool
 	EnableTextLogging      bool
-	googleCloudLogging     bool
+	GoogleCloudLogging     bool
 	LogLevelForServerError *logrus.Level
 }
 
@@ -58,7 +59,7 @@ func Set(level string, textLogging bool) error {
 // SetGoogle configures the Logger to use GoogleCloud compatible fields in JSON format
 // https://cloud.google.com/logging/docs/structured-logging#structured_logging_special_fields
 func SetGoogle(level string) error {
-	config := &LogConfig{EnableTraces: true, googleCloudLogging: true}
+	config := &LogConfig{EnableTraces: true, GoogleCloudLogging: true}
 	return SetWithConfig(level, config)
 }
 
@@ -77,7 +78,7 @@ func SetWithConfig(level string, config *LogConfig) error {
 	logger := logrus.New()
 	if config.EnableTextLogging {
 		logger.Formatter = &logrus.TextFormatter{DisableColors: true}
-	} else if config.googleCloudLogging {
+	} else if config.GoogleCloudLogging {
 		logger.Formatter = &LogstashFormatter{
 			FieldMap: map[string]string{
 				// https://cloud.google.com/logging/docs/agent/logging/configuration#special-fields
@@ -183,7 +184,7 @@ func createAccessEntry(r *http.Request, start time.Time, statusCode int, err err
 
 	cookies := map[string]string{}
 	for _, c := range r.Cookies() {
-		if !contains(AccessLogCookiesBlacklist, c.Name) {
+		if !slices.Contains(AccessLogCookiesBlacklist, c.Name) {
 			cookies[c.Name] = c.Value
 		}
 	}
@@ -297,7 +298,7 @@ func Application(h http.Header) *Entry {
 
 // LifecycleStart logs the start of an application
 // with the configuration struct or map as parameter.
-func LifecycleStart(appName string, args interface{}) {
+func LifecycleStart(appName string, args any) {
 	fields := logrus.Fields{}
 
 	if args != nil {
@@ -401,13 +402,4 @@ func getRemoteIP(r *http.Request) string {
 		return r.RemoteAddr
 	}
 	return host
-}
-
-func contains(s []string, e string) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
 }

@@ -409,8 +409,8 @@ func logRecordsFromBuffer(b *bytes.Buffer) []logRecord {
 	return records
 }
 
-func mapFromBuffer(b *bytes.Buffer) map[string]interface{} {
-	data := map[string]interface{}{}
+func mapFromBuffer(b *bytes.Buffer) map[string]any {
+	data := map[string]any{}
 	err := json.Unmarshal(b.Bytes(), &data)
 	if err != nil {
 		panic(err.Error() + " " + b.String())

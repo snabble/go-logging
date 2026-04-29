@@ -34,7 +34,7 @@ func TestLogstashFormatter(t *testing.T) {
 
 	b, _ := lf.Format(entry)
 
-	var data map[string]interface{}
+	var data map[string]any
 	dec := json.NewDecoder(bytes.NewReader(b))
 	dec.UseNumber()
 	dec.Decode(&data)

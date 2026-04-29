@@ -3,6 +3,7 @@ package logging
 import (
 	"context"
 	"fmt"
+	"maps"
 	"time"
 
 	"github.com/samber/lo"
@@ -54,7 +55,7 @@ func (logger *Logger) WithContext(ctx context.Context) *Entry {
 	return NewEntry(logger).WithContext(ctx)
 }
 
-func (logger *Logger) WithField(key string, value interface{}) *Entry {
+func (logger *Logger) WithField(key string, value any) *Entry {
 	return NewEntry(logger).WithField(key, value)
 }
 
@@ -123,7 +124,7 @@ func (entry *Entry) WithContext(ctx context.Context) *Entry {
 	return wrapEntry(entry.Entry.WithContext(ctx))
 }
 
-func (entry *Entry) WithField(key string, value interface{}) *Entry {
+func (entry *Entry) WithField(key string, value any) *Entry {
 	return entry.WithFields(logrus.Fields{key: value})
 }
 
@@ -139,9 +140,7 @@ func (entry *Entry) With(os ...Identifiable) *Entry {
 			continue
 		}
 		fields := o.LogIdentity()
-		for k, v := range fields {
-			merged[k] = v
-		}
+		maps.Copy(merged, fields)
 	}
 
 	return wrapEntry(entry.Entry.WithFields(merged))
