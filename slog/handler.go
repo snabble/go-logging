@@ -66,11 +66,6 @@ func New(opts ...OptionFunc) *slog.Logger {
 	return slog.New(o.newLogrusHandler())
 }
 
-// deprecated: use New with WithLevel instead
-func NewWithLevel(level logrus.Level) *slog.Logger {
-	return New(WithLevel(level))
-}
-
 func (o Option) newLogrusHandler() slog.Handler {
 	if o.AttrFromContext == nil {
 		o.AttrFromContext = []func(ctx context.Context) []slog.Attr{}
