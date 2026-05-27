@@ -31,6 +31,7 @@ type Option struct {
 	AttrFromContext []func(ctx context.Context) []slog.Attr
 	AddSource       bool
 	ReplaceAttr     func(groups []string, a slog.Attr) slog.Attr
+	Component       string // if set, this will be added as an attribute with key "component" to all log entries created by this handler
 }
 
 type OptionFunc func(*Option)
@@ -47,6 +48,12 @@ func WithMaxLevel(level logrus.Level) OptionFunc {
 	}
 }
 
+func WithComponent(component string) OptionFunc {
+	return func(o *Option) {
+		o.Component = component
+	}
+}
+
 func New(opts ...OptionFunc) *slog.Logger {
 	o := Option{
 		Level:  logLevelsToSlog[logging.Log.GetLevel()],
@@ -57,14 +64,6 @@ func New(opts ...OptionFunc) *slog.Logger {
 	}
 
 	return slog.New(o.newLogrusHandler())
-}
-
-func NewWithLevel(level logrus.Level) *slog.Logger {
-	return slog.New(
-		Option{
-			Level:  logLevelsToSlog[level],
-			Logger: logging.Log,
-		}.newLogrusHandler())
 }
 
 func (o Option) newLogrusHandler() slog.Handler {
@@ -97,6 +96,10 @@ func (h *LogrusHandler) Handle(ctx context.Context, record slog.Record) error {
 
 	fromContext := contextExtractor(ctx, h.option.AttrFromContext)
 	args := convert(h.option.AddSource, h.option.ReplaceAttr, append(h.attrs, fromContext...), h.groups, &record)
+
+	if h.option.Component != "" {
+		args["component"] = h.option.Component
+	}
 
 	logging.NewEntry(h.option.Logger).
 		WithContext(ctx).

@@ -38,7 +38,7 @@ func Test_Slog_WithLevel(t *testing.T) {
 	b := bytes.NewBuffer(nil)
 	logging.Log.Out = b
 
-	slog := NewWithLevel(logrus.WarnLevel)
+	slog := New(WithLevel(logrus.WarnLevel))
 
 	// when: I log something
 	slog.Info("should be ignored ..")
