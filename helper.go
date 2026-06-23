@@ -17,7 +17,7 @@ import (
 )
 
 // AccessLogCookiesBlacklist The list of cookies which should not be logged
-var AccessLogCookiesBlacklist = []string{}
+var AccessLogCookiesBlacklist = []string{"jwt_token"}
 
 var LifecycleEnvVars = []string{"BUILD_NUMBER", "BUILD_HASH", "BUILD_DATE"}
 
