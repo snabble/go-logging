@@ -1,6 +1,6 @@
 module github.com/snabble/go-logging/v2
 
-go 1.25.3
+go 1.26.7
 
 require (
 	github.com/samber/lo v1.53.0
