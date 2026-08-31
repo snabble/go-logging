@@ -4,7 +4,7 @@ go 1.26.7
 
 require (
 	github.com/samber/lo v1.53.0
-	github.com/sirupsen/logrus v1.10.1
+	github.com/sirupsen/logrus v1.10.2
 	github.com/stretchr/testify v1.12.1
 	github.com/uptrace/opentelemetry-go-extra/otellogrus v0.3.2
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.70.0
